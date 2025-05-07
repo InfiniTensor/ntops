@@ -9,6 +9,7 @@ import ntops.kernels.exp
 import ntops.kernels.gelu
 import ntops.kernels.mm
 import ntops.kernels.mul
+import ntops.kernels.relu
 import ntops.kernels.rsqrt
 
 
@@ -115,6 +116,17 @@ def mul(input, other, *, out=None):
     kernel = ntops.kernels.mul.make(input.ndim)
 
     kernel(input, other, out)
+
+    return out
+
+
+def relu(input, *, out=None):
+    if out is None:
+        out = torch.empty_like(input)
+
+    kernel = ntops.kernels.relu.make(input.ndim)
+
+    kernel(input, out)
 
     return out
 
