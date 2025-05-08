@@ -10,6 +10,7 @@ import ntops.kernels.gelu
 import ntops.kernels.mm
 import ntops.kernels.mul
 import ntops.kernels.rsqrt
+import ntops.kernels.softmax
 
 
 def abs(input, *, out=None):
@@ -128,3 +129,15 @@ def rsqrt(input, *, out=None):
     kernel(input, out)
 
     return out
+
+
+def softmax(input, dim, dtype=None):
+    tensor_dtype = dtype if dtype is not None else input.dtype
+
+    output = torch.empty_like(input, dtype=tensor_dtype)
+
+    kernel = ntops.kernels.softmax.make(input.ndim, dim)
+
+    kernel(input, output)
+
+    return output
