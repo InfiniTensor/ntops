@@ -14,6 +14,7 @@ import ntops.kernels.relu
 import ntops.kernels.rsqrt
 import ntops.kernels.sigmoid
 import ntops.kernels.sin
+import ntops.kernels.tanh
 
 
 def abs(input, *, out=None):
@@ -174,6 +175,17 @@ def sin(input, *, out=None):
         out = torch.empty_like(input)
 
     kernel = ntops.kernels.sin.make(input.ndim)
+
+    kernel(input, out)
+
+    return out
+
+
+def tanh(input, *, out=None):
+    if out is None:
+        out = torch.empty_like(input)
+
+    kernel = ntops.kernels.tanh.make(input.ndim)
 
     kernel(input, out)
 
