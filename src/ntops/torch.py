@@ -4,6 +4,7 @@ import ntops.kernels.abs
 import ntops.kernels.add
 import ntops.kernels.addmm
 import ntops.kernels.bmm
+import ntops.kernels.clamp
 import ntops.kernels.cos
 import ntops.kernels.div
 import ntops.kernels.exp
@@ -62,6 +63,17 @@ def bmm(input, mat2, *, out=None):
     kernel = ntops.kernels.bmm.make()
 
     kernel(input, mat2, out)
+
+    return out
+
+
+def clamp(input, min_val=None, max_val=None, *, out=None):
+    if out is None:
+        out = torch.empty_like(input)
+
+    kernel = ntops.kernels.clamp.make(input.ndim)
+
+    kernel(input, min_val, max_val, out)
 
     return out
 
