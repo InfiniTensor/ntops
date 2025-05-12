@@ -8,6 +8,7 @@ import ntops.kernels.cos
 import ntops.kernels.div
 import ntops.kernels.exp
 import ntops.kernels.gelu
+import ntops.kernels.isnan
 import ntops.kernels.mm
 import ntops.kernels.mul
 import ntops.kernels.relu
@@ -103,6 +104,16 @@ def gelu(input, approximate="none"):
     output = torch.empty_like(input)
 
     kernel = ntops.kernels.gelu.make(input.ndim, approximate)
+
+    kernel(input, output)
+
+    return output
+
+
+def isnan(input):
+    output = torch.empty_like(input)
+
+    kernel = ntops.kernels.isnan.make(input.ndim)
 
     kernel(input, output)
 
