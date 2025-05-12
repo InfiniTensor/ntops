@@ -8,6 +8,7 @@ import ntops.kernels.cos
 import ntops.kernels.div
 import ntops.kernels.exp
 import ntops.kernels.gelu
+import ntops.kernels.lt
 import ntops.kernels.mm
 import ntops.kernels.mul
 import ntops.kernels.relu
@@ -119,6 +120,17 @@ def mm(input, mat2, *, out=None):
     kernel = ntops.kernels.mm.make()
 
     kernel(input, mat2, out)
+
+    return out
+
+
+def lt(input, other, *, out=None):
+    if out is None:
+        out = torch.empty_like(input)
+
+    kernel = ntops.kernels.lt.make(input.ndim)
+
+    kernel(input, other, out)
 
     return out
 
