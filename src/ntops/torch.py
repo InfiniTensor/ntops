@@ -6,6 +6,7 @@ import ntops.kernels.addmm
 import ntops.kernels.bmm
 import ntops.kernels.cos
 import ntops.kernels.div
+import ntops.kernels.eq
 import ntops.kernels.exp
 import ntops.kernels.gelu
 import ntops.kernels.mm
@@ -95,6 +96,17 @@ def exp(input, *, out=None):
     kernel = ntops.kernels.exp.make(input.ndim)
 
     kernel(input, out)
+
+    return out
+
+
+def eq(input, other, *, out=None):
+    if out is None:
+        out = torch.empty_like(input)
+
+    kernel = ntops.kernels.eq.make(input.ndim)
+
+    kernel(input, other, out)
 
     return out
 
