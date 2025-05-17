@@ -4,11 +4,15 @@ import random
 import torch
 
 
-def generate_arguments():
+def generate_arguments(use_float=True):
     arguments = []
+    if use_float:
+        dtype_arr = (torch.float32, torch.float16)
+    else:
+        dtype_arr = (torch.bool, torch.int8, torch.int16, torch.int32)
 
     for ndim in range(1, 5):
-        for dtype in (torch.float32, torch.float16):
+        for dtype in dtype_arr:
             if dtype is torch.float32:
                 atol = 0.001
                 rtol = 0.001

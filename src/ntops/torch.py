@@ -3,6 +3,7 @@ import torch
 import ntops.kernels.abs
 import ntops.kernels.add
 import ntops.kernels.addmm
+import ntops.kernels.bitwise_or
 import ntops.kernels.bmm
 import ntops.kernels.cos
 import ntops.kernels.div
@@ -48,6 +49,17 @@ def addmm(input, mat1, mat2, *, beta=1, alpha=1, out=None):
     kernel = ntops.kernels.addmm.make()
 
     kernel(input, mat1, mat2, beta, alpha, out)
+
+    return out
+
+
+def bitwise_or(input, other, *, out=None):
+    if out is None:
+        out = torch.empty_like(input)
+
+    kernel = ntops.kernels.bitwise_or.make(input.ndim)
+
+    kernel(input, other, out)
 
     return out
 
