@@ -1,3 +1,5 @@
+import math
+
 import torch
 
 import ntops.kernels.abs
@@ -25,6 +27,7 @@ import ntops.kernels.ne
 import ntops.kernels.neg
 import ntops.kernels.relu
 import ntops.kernels.rsqrt
+import ntops.kernels.scaled_dot_product_attention
 import ntops.kernels.sigmoid
 import ntops.kernels.sin
 import ntops.kernels.softmax
@@ -312,6 +315,69 @@ def rsqrt(input, *, out=None):
     kernel(input, out)
 
     return out
+
+
+def scaled_dot_product_attention(
+    query,
+    key,
+    value,
+    attn_mask=None,
+    dropout_p=0,
+    is_causal=False,
+    scale=None,
+    # The default value here differs from that of
+    # `torch.nn.functional.scaled_dot_product_attention`
+    # because GQA cannot be disabled at the moment.
+    enable_gqa=True,
+    present_key=None,
+    present_value=None,
+    present_key_slot=None,
+    present_value_slot=None,
+):
+    # TODO: Support `dropout_p`.
+    assert dropout_p == 0, "`dropout_p` is not supported yet."
+    # TODO: Support `is_causal`.
+    assert not is_causal, "`is_causal` is not supported yet."
+    assert enable_gqa, "GQA must be enabled for now."
+
+    mask_shape = query.shape[:-1] + (key.shape[-2],)
+
+    if attn_mask is None:
+        attn_mask = torch.zeros(mask_shape, dtype=query.dtype, device=query.device)
+    elif attn_mask.dtype == torch.bool:
+        attn_mask = torch.where(attn_mask, 0, float("-inf"))
+
+    attn_mask = attn_mask.expand(mask_shape)
+
+    if scale is None:
+        scale = 1 / math.sqrt(query.shape[-1])
+
+    if present_key is not None:
+        with_kv_cache = True
+    else:
+        with_kv_cache = False
+
+    output = torch.empty_like(query, dtype=value.dtype)
+
+    kernel = ntops.kernels.scaled_dot_product_attention.make(with_kv_cache)
+
+    if with_kv_cache:
+        kernel(
+            query,
+            key,
+            value,
+            present_key,
+            present_value,
+            present_key_slot,
+            present_value_slot,
+            attn_mask,
+            scale,
+            output,
+        )
+    else:
+        kernel(query, key, value, attn_mask, scale, output)
+
+    return output
 
 
 def sigmoid(input, *, out=None):
