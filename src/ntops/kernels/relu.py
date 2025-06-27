@@ -10,8 +10,12 @@ def application(input, output):
     output = max(0.0, input)  # noqa: F841
 
 
-@functools.cache
-def make(ndim):
-    tensors = (Tensor(ndim), Tensor(ndim))
+def premake(ndim, dtype, block_size):
+    tensors = (Tensor(ndim, dtype=dtype), Tensor(ndim, dtype=dtype))
 
-    return ninetoothed.make(arrangement, application, tensors)
+    return functools.partial(arrangement, block_size=block_size), application, tensors
+
+
+@functools.cache
+def make(ndim, dtype=None, block_size=None):
+    return ninetoothed.make(*premake(ndim, dtype, block_size))
