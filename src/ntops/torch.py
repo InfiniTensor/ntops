@@ -13,6 +13,7 @@ import ntops.kernels.bitwise_not
 import ntops.kernels.bitwise_or
 import ntops.kernels.bmm
 import ntops.kernels.clamp
+import ntops.kernels.conv2d
 import ntops.kernels.cos
 import ntops.kernels.div
 import ntops.kernels.dropout
@@ -138,6 +139,45 @@ def clamp(input, min=None, max=None, *, out=None):
     kernel(input, min, max, out)
 
     return out
+
+
+def conv2d(input, weight, bias=None, stride=1, padding=0, dilation=1, groups=1):
+    if isinstance(stride, int):
+        stride = (stride, stride)
+
+    # TODO: Support `padding != 0`.
+    assert padding == 0, "`padding != 0` is not supported yet."
+
+    if isinstance(padding, str):
+        if padding == "valid":
+            padding = 0
+
+    if isinstance(padding, int):
+        padding = (padding, padding)
+
+    if isinstance(dilation, int):
+        dilation = (dilation, dilation)
+
+    # TODO: Support `groups != 1`.
+    assert groups == 1, "`groups != 1` is not supported yet."
+
+    n, _, h, w = input.shape
+    k, _, r, s = weight.shape
+    p = math.floor((h + 2 * padding[0] - dilation[0] * (r - 1) - 1) / stride[0] + 1)
+    q = math.floor((w + 2 * padding[1] - dilation[1] * (s - 1) - 1) / stride[1] + 1)
+
+    output = torch.empty((n, k, p, q), dtype=input.dtype, device=input.device)
+
+    if bias is None:
+        bias = torch.zeros((k,), dtype=output.dtype, device=output.device)
+
+    bias = bias[None, :, None, None].expand_as(output)
+
+    kernel = _cached_make(ntops.kernels.conv2d.premake, stride, dilation)
+
+    kernel(input, weight, bias, output)
+
+    return output
 
 
 def cos(input, *, out=None):
