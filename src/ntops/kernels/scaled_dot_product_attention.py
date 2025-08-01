@@ -147,7 +147,12 @@ def application_without_kv_cache(
                 qk += attn_mask[j]
 
             if is_causal:
-                mask = query[i].offsets(-2)[:, None] >= key[j].offsets(-2)[None, :]
+                mask = (
+                    query[i].offsets(-2)[:, None]
+                    + key.source.shape[-2]
+                    - query.source.shape[-2]
+                    >= key[j].offsets(-2)[None, :]
+                )
                 qk = ntl.where(mask, qk, float("-inf"))
 
             next_max = ntl.maximum(max, ntl.max(qk, 1))

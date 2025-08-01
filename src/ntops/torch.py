@@ -450,6 +450,10 @@ def scaled_dot_product_attention(
     present_key_slot=None,
     present_value_slot=None,
 ):
+    # The behavior of this operator when `is_causal==True` may differ
+    # slightly from that in `torch`, as it uses a lower-right
+    # triangular causal mask.
+
     # TODO: Support `dropout_p`.
     assert dropout_p == 0, "`dropout_p` is not supported yet."
 
