@@ -473,7 +473,9 @@ def scaled_dot_product_attention(
             "Number of heads in `query` must be divisible by number of heads in `key` and `value` when GQA is enabled."
         )
 
-    mask_shape = query.shape[:-1] + (key.shape[-2],)
+    mask_shape = query.shape[:-1] + (
+        key.shape[-2] if present_key is None else key.shape[-2] + present_key.shape[-2],
+    )
 
     if attn_mask is not None:
         with_attn_mask = True
