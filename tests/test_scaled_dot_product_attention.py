@@ -5,8 +5,10 @@ import random
 import pytest
 import torch
 import torch.nn.functional as F
+from torch.nn.attention.bias import causal_lower_right
 
 import ntops.torch
+from ntops.kernels.scaled_dot_product_attention import CausalVariant
 from tests.skippers import skip_if_cuda_not_available
 
 
@@ -21,9 +23,22 @@ def generate_arguments():
     scales = (None, random.uniform(0.05, 0.5))
     dtypes = (torch.float32, torch.float16)
     with_kv_cache_values = (False, True)
+    causal_variants = (None, CausalVariant.LOWER_RIGHT, CausalVariant.UPPER_LEFT)
 
-    for attn_mask_type, is_causal, scale, dtype, with_kv_cache in itertools.product(
-        attn_mask_types, is_causal_values, scales, dtypes, with_kv_cache_values
+    for (
+        attn_mask_type,
+        is_causal,
+        scale,
+        dtype,
+        with_kv_cache,
+        causal_variant,
+    ) in itertools.product(
+        attn_mask_types,
+        is_causal_values,
+        scales,
+        dtypes,
+        with_kv_cache_values,
+        causal_variants,
     ):
         if attn_mask_type is not None and is_causal:
             continue
@@ -56,6 +71,7 @@ def generate_arguments():
                 is_causal,
                 scale,
                 enable_gqa,
+                causal_variant,
                 with_kv_cache,
                 dtype,
                 atol,
@@ -64,7 +80,7 @@ def generate_arguments():
         )
 
     return (
-        "batch_size, num_heads_q, seq_len_q, head_dim, num_heads_kv, seq_len_kv, attn_mask_type, is_causal, scale, enable_gqa, with_kv_cache, dtype, atol, rtol",
+        "batch_size, num_heads_q, seq_len_q, head_dim, num_heads_kv, seq_len_kv, attn_mask_type, is_causal, scale, enable_gqa, causal_variant, with_kv_cache, dtype, atol, rtol",
         arguments,
     )
 
@@ -82,6 +98,7 @@ def test_cuda(
     is_causal,
     scale,
     enable_gqa,
+    causal_variant,
     with_kv_cache,
     dtype,
     atol,
@@ -138,11 +155,18 @@ def test_cuda(
         is_causal=is_causal,
         scale=scale,
         enable_gqa=enable_gqa,
+        causal_variant=causal_variant,
         present_key=present_key,
         present_value=present_value,
         present_key_slot=present_key_slot,
         present_value_slot=present_value_slot,
     )
+
+    if is_causal:
+        if causal_variant == CausalVariant.LOWER_RIGHT:
+            attn_mask = causal_lower_right(query.shape[-2], key.shape[-2])
+            is_causal = False
+
     reference_output = F.scaled_dot_product_attention(
         query,
         key_cloned,
