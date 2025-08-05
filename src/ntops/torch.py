@@ -42,6 +42,7 @@ import ntops.kernels.sin
 import ntops.kernels.softmax
 import ntops.kernels.sub
 import ntops.kernels.tanh
+from ntops.kernels.scaled_dot_product_attention import CausalVariant
 
 
 def abs(input, *, out=None):
@@ -445,6 +446,7 @@ def scaled_dot_product_attention(
     is_causal=False,
     scale=None,
     enable_gqa=False,
+    causal_variant=None,
     present_key=None,
     present_value=None,
     present_key_slot=None,
@@ -490,6 +492,9 @@ def scaled_dot_product_attention(
     if scale is None:
         scale = 1 / math.sqrt(query.shape[-1])
 
+    if causal_variant is None:
+        causal_variant = CausalVariant.UPPER_LEFT
+
     if present_key is not None:
         with_kv_cache = True
     else:
@@ -515,9 +520,20 @@ def scaled_dot_product_attention(
             scale,
             output,
             with_attn_mask,
+            causal_variant,
         )
     else:
-        kernel(query, key, value, attn_mask, is_causal, scale, output, with_attn_mask)
+        kernel(
+            query,
+            key,
+            value,
+            attn_mask,
+            is_causal,
+            scale,
+            output,
+            with_attn_mask,
+            causal_variant,
+        )
 
     return output
 

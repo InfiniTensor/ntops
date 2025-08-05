@@ -1,3 +1,4 @@
+import enum
 import functools
 
 import ninetoothed
@@ -6,6 +7,14 @@ from ninetoothed import Tensor
 
 BLOCK_SIZE_M = ninetoothed.block_size()
 BLOCK_SIZE_N = ninetoothed.block_size()
+
+
+class CausalVariant(enum.IntEnum):
+    """Please refer to `<https://docs.pytorch.org/docs/stable/generated/torch.nn.attention.bias.CausalVariant.html>`_."""
+
+    UPPER_LEFT = enum.auto()
+
+    LOWER_RIGHT = enum.auto()
 
 
 def arrangement(
@@ -21,6 +30,7 @@ def arrangement(
     scale,
     output,
     with_attn_mask,
+    causal_variant,
     with_kv_cache,
     block_size_m=None,
     block_size_n=None,
@@ -78,6 +88,7 @@ def arrangement(
     scale_arranged = scale
     output_arranged = arrange_query_or_output(output)
     with_attn_mask_arranged = with_attn_mask
+    causal_variant_arranged = causal_variant
 
     if with_kv_cache:
         return (
@@ -93,6 +104,7 @@ def arrangement(
             scale_arranged,
             output_arranged,
             with_attn_mask_arranged,
+            causal_variant_arranged,
         )
 
     return (
@@ -104,6 +116,7 @@ def arrangement(
         scale_arranged,
         output_arranged,
         with_attn_mask_arranged,
+        causal_variant_arranged,
     )
 
 
@@ -120,17 +133,34 @@ def application_with_kv_cache(
     scale,
     output,
     with_attn_mask,
+    causal_variant,
 ):
     present_key_slot = present_key  # noqa: F841
     present_value_slot = present_value  # noqa: F841
 
     application_without_kv_cache(
-        query, key, value, attn_mask, is_causal, scale, output, with_attn_mask
+        query,
+        key,
+        value,
+        attn_mask,
+        is_causal,
+        scale,
+        output,
+        with_attn_mask,
+        causal_variant,
     )
 
 
 def application_without_kv_cache(
-    query, key, value, attn_mask, is_causal, scale, output, with_attn_mask
+    query,
+    key,
+    value,
+    attn_mask,
+    is_causal,
+    scale,
+    output,
+    with_attn_mask,
+    causal_variant,
 ):
     for i in range(query.shape[0]):
         query_i = (1.4426950408889634 * scale * query[i]).to(query[i].dtype)
@@ -147,7 +177,16 @@ def application_without_kv_cache(
                 qk += attn_mask[j]
 
             if is_causal:
-                mask = query[i].offsets(-2)[:, None] >= key[j].offsets(-2)[None, :]
+                if causal_variant == 2:  # CausalVariant.LOWER_RIGHT:
+                    mask = (
+                        query[i].offsets(-2)[:, None]
+                        + key.source.shape[-2]
+                        - query.source.shape[-2]
+                        >= key[j].offsets(-2)[None, :]
+                    )
+                else:
+                    mask = query[i].offsets(-2)[:, None] >= key[j].offsets(-2)[None, :]
+
                 qk = ntl.where(mask, qk, float("-inf"))
 
             next_max = ntl.maximum(max, ntl.max(qk, 1))
@@ -167,6 +206,7 @@ def premake(
     emb_dim=None,
     is_causal=None,
     with_attn_mask=None,
+    causal_variant=None,
     dtype=None,
     block_size_m=None,
     block_size_n=None,
@@ -192,6 +232,7 @@ def premake(
     scale = Tensor(0, dtype=dtype)
     is_causal = Tensor(0, dtype=dtype, constexpr=True, value=is_causal)
     with_attn_mask = Tensor(0, dtype=dtype, constexpr=True, value=with_attn_mask)
+    causal_variant = Tensor(0, dtype=dtype, constexpr=True, value=causal_variant)
 
     if emb_dim is not None:
         for tensor in (query, key, value, attn_mask, output):
@@ -215,6 +256,7 @@ def premake(
         scale,
         output,
         with_attn_mask,
+        causal_variant,
     )
 
     return arrangement_, application, tensors
