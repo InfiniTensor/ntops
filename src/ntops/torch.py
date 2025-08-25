@@ -394,7 +394,9 @@ def rms_norm(input, normalized_shape, weight=None, eps=None):
 
     output = torch.empty_like(input)
 
-    kernel = _cached_make(ntops.kernels.rms_norm.premake, input.ndim, normalized_shape)
+    kernel = _cached_make(
+        ntops.kernels.rms_norm.premake, input.ndim, len(normalized_shape)
+    )
 
     kernel(input, weight, eps, output, math.prod(normalized_shape))
 
