@@ -59,6 +59,9 @@ def generate_arguments():
             atol = 0.025
             rtol = 0.025
 
+        if causal_variant == CausalVariant.LOWER_RIGHT and seq_len_q > seq_len_kv:
+            continue
+
         arguments.append(
             (
                 batch_size,
