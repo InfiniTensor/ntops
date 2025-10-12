@@ -76,7 +76,7 @@ def addmm(input, mat1, mat2, *, beta=1, alpha=1, out=None):
 
     kernel = _cached_make(ntops.kernels.addmm.premake)
 
-    kernel(input, mat1, mat2, beta, alpha, out)
+    kernel(input, mat1, mat2, beta, alpha, out, _get_matmul_input_precision())
 
     return out
 
@@ -125,7 +125,7 @@ def bmm(input, mat2, *, out=None):
 
     kernel = _cached_make(ntops.kernels.bmm.premake)
 
-    kernel(input, mat2, out)
+    kernel(input, mat2, out, _get_matmul_input_precision())
 
     return out
 
@@ -294,7 +294,7 @@ def mm(input, mat2, *, out=None):
 
     kernel = _cached_make(ntops.kernels.mm.premake)
 
-    kernel(input, mat2, out)
+    kernel(input, mat2, out, _get_matmul_input_precision())
 
     return out
 
@@ -619,3 +619,10 @@ def _cached_make(
         num_stages=num_stages,
         max_num_configs=max_num_configs,
     )
+
+
+def _get_matmul_input_precision():
+    if torch.get_float32_matmul_precision() == "highest":
+        return ntops.kernels.mm.InputPrecisionVariant.IEEE
+
+    return ntops.kernels.mm.InputPrecisionVariant.TF32
