@@ -12,11 +12,11 @@ def generate_arguments():
 
     for dtype in (torch.float32, torch.float16):
         if dtype is torch.float32:
-            atol = 0.05
-            rtol = 0.05
+            atol = 0.001
+            rtol = 0.001
         else:
-            atol = 0.025
-            rtol = 0.025
+            atol = 0.01
+            rtol = 0.01
 
         def generate_random_size():
             return random.randint(1, 1024)
