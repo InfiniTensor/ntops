@@ -6,7 +6,13 @@ from ntops.kernels.mm import BLOCK_SIZE_K, BLOCK_SIZE_M, BLOCK_SIZE_N, applicati
 
 
 def arrangement(
-    input, other, output, block_size_m=None, block_size_n=None, block_size_k=None
+    input,
+    other,
+    output,
+    input_precision,
+    block_size_m=None,
+    block_size_n=None,
+    block_size_k=None,
 ):
     if block_size_m is None:
         block_size_m = BLOCK_SIZE_M
@@ -32,10 +38,18 @@ def arrangement(
     other_arranged.dtype = other_arranged.dtype.squeeze((0, 2))
     other_arranged.dtype.dtype = other_arranged.dtype.dtype.squeeze(0)
 
-    return input_arranged, other_arranged, output_arranged
+    input_precision_arranged = input_precision
+
+    return input_arranged, other_arranged, output_arranged, input_precision_arranged
 
 
-def premake(dtype=None, block_size_m=None, block_size_n=None, block_size_k=None):
+def premake(
+    input_precision=None,
+    dtype=None,
+    block_size_m=None,
+    block_size_n=None,
+    block_size_k=None,
+):
     arrangement_ = functools.partial(
         arrangement,
         block_size_m=block_size_m,
@@ -43,6 +57,11 @@ def premake(dtype=None, block_size_m=None, block_size_n=None, block_size_k=None)
         block_size_k=block_size_k,
     )
 
-    tensors = (Tensor(3, dtype=dtype), Tensor(3, dtype=dtype), Tensor(3, dtype=dtype))
+    tensors = (
+        Tensor(3, dtype=dtype),
+        Tensor(3, dtype=dtype),
+        Tensor(3, dtype=dtype),
+        Tensor(0, dtype=dtype, constexpr=True, value=input_precision),
+    )
 
     return arrangement_, application, tensors
