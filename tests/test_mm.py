@@ -3,7 +3,7 @@ import random
 import pytest
 import torch
 
-import ntops.torch
+import ntops
 from tests.skippers import skip_if_cuda_not_available
 
 

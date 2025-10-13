@@ -4,7 +4,7 @@ import pytest
 import torch
 import torch.nn.functional as F
 
-import ntops.torch
+import ntops
 from tests.skippers import skip_if_cuda_not_available
 from tests.utils import generate_arguments
 
