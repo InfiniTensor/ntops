@@ -7,7 +7,7 @@ import torch
 import torch.nn.functional as F
 from torch.nn.attention.bias import causal_lower_right
 
-import ntops.torch
+import ntops
 from ntops.kernels.scaled_dot_product_attention import CausalVariant
 from tests.skippers import skip_if_cuda_not_available
 

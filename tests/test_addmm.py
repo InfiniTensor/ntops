@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-import ntops.torch
+import ntops
 from tests.skippers import skip_if_cuda_not_available
 from tests.test_mm import generate_arguments
 from tests.utils import gauss
