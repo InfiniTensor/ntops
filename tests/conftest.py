@@ -5,6 +5,11 @@ import pytest
 import torch
 
 
+def pytest_configure():
+    torch.backends.cuda.matmul.allow_fp16_reduced_precision_reduction = False
+    torch.backends.cuda.matmul.allow_bf16_reduced_precision_reduction = False
+
+
 def pytest_collectstart(collector):
     if isinstance(collector, pytest.Module):
         _set_random_seed(_hash(collector.name))
