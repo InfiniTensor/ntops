@@ -38,7 +38,13 @@ def arrangement(
     )
 
     x_arranged, y_arranged, output_arranged, _ = mm.arrangement(
-        x, y, output, input_precision
+        x,
+        y,
+        output,
+        input_precision,
+        block_size_m=block_size_m,
+        block_size_n=block_size_n,
+        block_size_k=block_size_k,
     )
 
     input_precision_arranged = input_precision
