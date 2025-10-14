@@ -5,43 +5,7 @@ import random
 import ninetoothed
 import torch
 
-import ntops.kernels.abs
-import ntops.kernels.add
-import ntops.kernels.addmm
-import ntops.kernels.bitwise_and
-import ntops.kernels.bitwise_not
-import ntops.kernels.bitwise_or
-import ntops.kernels.bmm
-import ntops.kernels.clamp
-import ntops.kernels.cos
-import ntops.kernels.div
-import ntops.kernels.dropout
-import ntops.kernels.eq
-import ntops.kernels.exp
-import ntops.kernels.ge
-import ntops.kernels.gelu
-import ntops.kernels.gt
-import ntops.kernels.isinf
-import ntops.kernels.isnan
-import ntops.kernels.layer_norm
-import ntops.kernels.le
-import ntops.kernels.lt
-import ntops.kernels.mm
-import ntops.kernels.mul
-import ntops.kernels.ne
-import ntops.kernels.neg
-import ntops.kernels.pow
-import ntops.kernels.relu
-import ntops.kernels.rms_norm
-import ntops.kernels.rotary_position_embedding
-import ntops.kernels.rsqrt
-import ntops.kernels.scaled_dot_product_attention
-import ntops.kernels.sigmoid
-import ntops.kernels.silu
-import ntops.kernels.sin
-import ntops.kernels.softmax
-import ntops.kernels.sub
-import ntops.kernels.tanh
+import ntops
 from ntops.kernels.scaled_dot_product_attention import CausalVariant
 
 
