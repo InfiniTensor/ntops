@@ -1,3 +1,3 @@
-from ntops import torch
+from ntops import kernels, torch
 
-__all__ = ["torch"]
+__all__ = ["kernels", "torch"]
