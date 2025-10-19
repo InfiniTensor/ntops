@@ -22,6 +22,7 @@ def generate_arguments():
     is_causal_values = (False, True)
     scales = (None, random.uniform(0.05, 0.5))
     dtypes = (torch.float32, torch.float16)
+    devices = ("cuda",)
     with_kv_cache_values = (False, True)
     causal_variants = (None, CausalVariant.LOWER_RIGHT, CausalVariant.UPPER_LEFT)
 
@@ -30,6 +31,7 @@ def generate_arguments():
         is_causal,
         scale,
         dtype,
+        device,
         with_kv_cache,
         causal_variant,
     ) in itertools.product(
@@ -37,6 +39,7 @@ def generate_arguments():
         is_causal_values,
         scales,
         dtypes,
+        devices,
         with_kv_cache_values,
         causal_variants,
     ):
@@ -77,20 +80,21 @@ def generate_arguments():
                 causal_variant,
                 with_kv_cache,
                 dtype,
+                device,
                 atol,
                 rtol,
             )
         )
 
     return (
-        "batch_size, num_heads_q, seq_len_q, head_dim, num_heads_kv, seq_len_kv, attn_mask_type, is_causal, scale, enable_gqa, causal_variant, with_kv_cache, dtype, atol, rtol",
+        "batch_size, num_heads_q, seq_len_q, head_dim, num_heads_kv, seq_len_kv, attn_mask_type, is_causal, scale, enable_gqa, causal_variant, with_kv_cache, dtype, device, atol, rtol",
         arguments,
     )
 
 
 @skip_if_cuda_not_available
 @pytest.mark.parametrize(*generate_arguments())
-def test_cuda(
+def test_scaled_dot_product_attention(
     batch_size,
     num_heads_q,
     seq_len_q,
@@ -104,11 +108,10 @@ def test_cuda(
     causal_variant,
     with_kv_cache,
     dtype,
+    device,
     atol,
     rtol,
 ):
-    device = "cuda"
-
     shape_q = (batch_size, num_heads_q, seq_len_q, head_dim)
     shape_kv = (batch_size, num_heads_kv, seq_len_kv, head_dim)
 

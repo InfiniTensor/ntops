@@ -10,9 +10,7 @@ from tests.test_mm import generate_arguments
 
 @skip_if_cuda_not_available
 @pytest.mark.parametrize(*generate_arguments())
-def test_cuda(m, n, k, dtype, atol, rtol):
-    device = "cuda"
-
+def test_bmm(m, n, k, dtype, device, atol, rtol):
     b = random.randint(4, 16)
     input = torch.randn((b, m, k), dtype=dtype, device=device)
     other = torch.randn((b, k, n), dtype=dtype, device=device)

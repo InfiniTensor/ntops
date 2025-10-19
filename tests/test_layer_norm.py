@@ -13,9 +13,9 @@ from tests.utils import generate_arguments
 @pytest.mark.parametrize("bias_is_none", (False, True))
 @pytest.mark.parametrize("weight_is_none", (False, True))
 @pytest.mark.parametrize(*generate_arguments())
-def test_cuda(shape, dtype, atol, rtol, weight_is_none, bias_is_none, eps):
-    device = "cuda"
-
+def test_layer_norm(
+    shape, dtype, device, atol, rtol, weight_is_none, bias_is_none, eps
+):
     input = torch.randn(shape, dtype=dtype, device=device)
     normalized_shape = shape[-random.randint(1, len(shape)) :]
     if weight_is_none:

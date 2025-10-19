@@ -46,6 +46,7 @@ def _generate_sin_and_cos_tables(
 
 
 @skip_if_cuda_not_available
+@pytest.mark.parametrize("device", ("cuda",))
 @pytest.mark.parametrize(
     "dtype, atol, rtol", ((torch.float32, 0.001, 0), (torch.float16, 0.001, 0.001))
 )
@@ -55,11 +56,18 @@ def _generate_sin_and_cos_tables(
 @pytest.mark.parametrize("num_heads", (1, 8))
 @pytest.mark.parametrize("seq_len", (1, 128))
 @pytest.mark.parametrize("batch_size", (1, 4))
-def test_cuda(
-    batch_size, seq_len, num_heads, emb_dim, interleaved, inplace, dtype, atol, rtol
+def test_rotary_position_embedding(
+    batch_size,
+    seq_len,
+    num_heads,
+    emb_dim,
+    interleaved,
+    inplace,
+    dtype,
+    device,
+    atol,
+    rtol,
 ):
-    device = "cuda"
-
     input = torch.randn(
         batch_size, seq_len, num_heads, emb_dim, dtype=dtype, device=device
     )

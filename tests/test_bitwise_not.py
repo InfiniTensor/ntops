@@ -8,9 +8,7 @@ from tests.utils import generate_arguments
 
 @skip_if_cuda_not_available
 @pytest.mark.parametrize(*generate_arguments(False))
-def test_cuda(shape, dtype, atol, rtol):
-    device = "cuda"
-
+def test_bitwise_not(shape, dtype, device, atol, rtol):
     if dtype == torch.bool:
         prob = 0.5
         input = torch.rand(shape, dtype=torch.float32, device=device) > prob
