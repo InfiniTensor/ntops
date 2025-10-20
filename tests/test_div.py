@@ -7,19 +7,22 @@ from tests.utils import generate_arguments
 
 
 @skip_if_cuda_not_available
+@pytest.mark.parametrize(
+    "rounding_mode",
+    [
+        None,
+        pytest.param(
+            "trunc", marks=pytest.mark.skip(reason="TODO: Test for `trunc` mode later.")
+        ),
+        "floor",
+    ],
+)
 @pytest.mark.parametrize(*generate_arguments())
-def test_div(shape, dtype, device, rtol, atol):
+def test_div(shape, rounding_mode, dtype, device, rtol, atol):
     input = torch.randn(shape, dtype=dtype, device=device)
     other = torch.randn(shape, dtype=dtype, device=device)
 
-    for rounding_mode in (None, "trunc", "floor"):
-        # TODO: Test for `trunc` mode later.
-        if rounding_mode == "trunc":
-            continue
+    ninetoothed_output = ntops.torch.div(input, other, rounding_mode=rounding_mode)
+    reference_output = torch.div(input, other, rounding_mode=rounding_mode)
 
-        ninetoothed_output = ntops.torch.div(input, other, rounding_mode=rounding_mode)
-        reference_output = torch.div(input, other, rounding_mode=rounding_mode)
-
-        assert torch.allclose(
-            ninetoothed_output, reference_output, rtol=rtol, atol=atol
-        )
+    assert torch.allclose(ninetoothed_output, reference_output, rtol=rtol, atol=atol)

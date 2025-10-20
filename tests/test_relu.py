@@ -8,14 +8,12 @@ from tests.utils import generate_arguments
 
 
 @skip_if_cuda_not_available
+@pytest.mark.parametrize("inplace", (False, True))
 @pytest.mark.parametrize(*generate_arguments())
-def test_relu(shape, dtype, device, rtol, atol):
+def test_relu(shape, inplace, dtype, device, rtol, atol):
     input = torch.randn(shape, dtype=dtype, device=device)
 
-    for inplace in (False, True):
-        ninetoothed_output = ntops.torch.relu(input, inplace)
-        reference_output = F.relu(input, inplace)
+    ninetoothed_output = ntops.torch.relu(input, inplace)
+    reference_output = F.relu(input, inplace)
 
-        assert torch.allclose(
-            ninetoothed_output, reference_output, rtol=rtol, atol=atol
-        )
+    assert torch.allclose(ninetoothed_output, reference_output, rtol=rtol, atol=atol)
