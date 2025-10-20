@@ -27,18 +27,18 @@ def generate_arguments():
         n = generate_random_size()
         k = generate_random_size()
 
-        arguments.append((m, n, k, dtype, device, atol, rtol))
+        arguments.append((m, n, k, dtype, device, rtol, atol))
 
-    return "m, n, k, dtype, device, atol, rtol", arguments
+    return "m, n, k, dtype, device, rtol, atol", arguments
 
 
 @skip_if_cuda_not_available
 @pytest.mark.parametrize(*generate_arguments())
-def test_mm(m, n, k, dtype, device, atol, rtol):
+def test_mm(m, n, k, dtype, device, rtol, atol):
     input = torch.randn((m, k), dtype=dtype, device=device)
     other = torch.randn((k, n), dtype=dtype, device=device)
 
     ninetoothed_output = ntops.torch.mm(input, other)
     reference_output = torch.mm(input, other)
 
-    assert torch.allclose(ninetoothed_output, reference_output, atol=atol, rtol=rtol)
+    assert torch.allclose(ninetoothed_output, reference_output, rtol=rtol, atol=atol)

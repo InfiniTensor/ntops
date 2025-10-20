@@ -14,7 +14,7 @@ from tests.utils import generate_arguments
 @pytest.mark.parametrize("weight_is_none", (False, True))
 @pytest.mark.parametrize(*generate_arguments())
 def test_layer_norm(
-    shape, dtype, device, atol, rtol, weight_is_none, bias_is_none, eps
+    shape, dtype, device, rtol, atol, weight_is_none, bias_is_none, eps
 ):
     input = torch.randn(shape, dtype=dtype, device=device)
     normalized_shape = shape[-random.randint(1, len(shape)) :]
@@ -34,4 +34,4 @@ def test_layer_norm(
         input, normalized_shape, weight=weight, bias=bias, eps=eps
     )
 
-    assert torch.allclose(ninetoothed_output, reference_output, atol=atol, rtol=rtol)
+    assert torch.allclose(ninetoothed_output, reference_output, rtol=rtol, atol=atol)

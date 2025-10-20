@@ -10,7 +10,7 @@ from tests.utils import generate_arguments
 
 @skip_if_cuda_not_available
 @pytest.mark.parametrize(*generate_arguments())
-def test_softmax(shape, dtype, device, atol, rtol):
+def test_softmax(shape, dtype, device, rtol, atol):
     input = torch.randn(shape, dtype=dtype, device=device)
     dim = random.randint(0, input.ndim - 1)
     dtype = random.choice([torch.float16, torch.float32, torch.float64])
@@ -18,4 +18,4 @@ def test_softmax(shape, dtype, device, atol, rtol):
     ninetoothed_output = ntops.torch.softmax(input, dim, dtype)
     reference_output = torch.nn.functional.softmax(input, dim=dim, dtype=dtype)
 
-    assert torch.allclose(ninetoothed_output, reference_output, atol=atol, rtol=rtol)
+    assert torch.allclose(ninetoothed_output, reference_output, rtol=rtol, atol=atol)

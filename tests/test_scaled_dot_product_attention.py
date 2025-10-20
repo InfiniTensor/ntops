@@ -81,13 +81,13 @@ def generate_arguments():
                 with_kv_cache,
                 dtype,
                 device,
-                atol,
                 rtol,
+                atol,
             )
         )
 
     return (
-        "batch_size, num_heads_q, seq_len_q, head_dim, num_heads_kv, seq_len_kv, attn_mask_type, is_causal, scale, enable_gqa, causal_variant, with_kv_cache, dtype, device, atol, rtol",
+        "batch_size, num_heads_q, seq_len_q, head_dim, num_heads_kv, seq_len_kv, attn_mask_type, is_causal, scale, enable_gqa, causal_variant, with_kv_cache, dtype, device, rtol, atol",
         arguments,
     )
 
@@ -109,8 +109,8 @@ def test_scaled_dot_product_attention(
     with_kv_cache,
     dtype,
     device,
-    atol,
     rtol,
+    atol,
 ):
     shape_q = (batch_size, num_heads_q, seq_len_q, head_dim)
     shape_kv = (batch_size, num_heads_kv, seq_len_kv, head_dim)
@@ -183,4 +183,4 @@ def test_scaled_dot_product_attention(
         enable_gqa=enable_gqa,
     )
 
-    assert torch.allclose(ninetoothed_output, reference_output, atol=atol, rtol=rtol)
+    assert torch.allclose(ninetoothed_output, reference_output, rtol=rtol, atol=atol)

@@ -8,7 +8,7 @@ from tests.utils import generate_arguments
 
 @skip_if_cuda_not_available
 @pytest.mark.parametrize(*generate_arguments())
-def test_gt(shape, dtype, device, atol, rtol):
+def test_gt(shape, dtype, device, rtol, atol):
     input = torch.randn(shape, dtype=dtype, device=device)
     other = torch.randn(shape, dtype=dtype, device=device)
 

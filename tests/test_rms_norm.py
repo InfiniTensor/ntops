@@ -12,7 +12,7 @@ from tests.utils import generate_arguments
 @pytest.mark.parametrize("eps", (None, 0, 1e-5, 1e-3))
 @pytest.mark.parametrize("weight_is_none", (False, True))
 @pytest.mark.parametrize(*generate_arguments())
-def test_rms_norm(shape, dtype, device, atol, rtol, weight_is_none, eps):
+def test_rms_norm(shape, dtype, device, rtol, atol, weight_is_none, eps):
     input = torch.randn(shape, dtype=dtype, device=device)
     normalized_shape = shape[-random.randint(1, len(shape)) :]
     if weight_is_none:
@@ -27,4 +27,4 @@ def test_rms_norm(shape, dtype, device, atol, rtol, weight_is_none, eps):
         input, normalized_shape, weight=weight, eps=eps
     )
 
-    assert torch.allclose(ninetoothed_output, reference_output, atol=atol, rtol=rtol)
+    assert torch.allclose(ninetoothed_output, reference_output, rtol=rtol, atol=atol)

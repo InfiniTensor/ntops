@@ -11,7 +11,7 @@ from tests.utils import generate_arguments
 
 @skip_if_cuda_not_available
 @pytest.mark.parametrize(*generate_arguments())
-def test_dropout(shape, dtype, device, atol, rtol):
+def test_dropout(shape, dtype, device, rtol, atol):
     input = torch.randn(shape, dtype=dtype, device=device)
     p = random.uniform(0, 1)
 

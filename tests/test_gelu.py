@@ -9,7 +9,7 @@ from tests.utils import generate_arguments
 
 @skip_if_cuda_not_available
 @pytest.mark.parametrize(*generate_arguments())
-def test_gelu(shape, dtype, device, atol, rtol):
+def test_gelu(shape, dtype, device, rtol, atol):
     input = torch.randn(shape, dtype=dtype, device=device)
 
     for approximate in ("none", "tanh"):
@@ -17,5 +17,5 @@ def test_gelu(shape, dtype, device, atol, rtol):
         reference_output = F.gelu(input)
 
         assert torch.allclose(
-            ninetoothed_output, reference_output, atol=atol, rtol=rtol
+            ninetoothed_output, reference_output, rtol=rtol, atol=atol
         )

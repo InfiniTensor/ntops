@@ -8,7 +8,7 @@ from tests.utils import generate_arguments
 
 @skip_if_cuda_not_available
 @pytest.mark.parametrize(*generate_arguments())
-def test_isnan(shape, dtype, device, atol, rtol):
+def test_isnan(shape, dtype, device, rtol, atol):
     def generate_nan_tensor(shape, dtype, device):
         nan_prob = 0.4
         prob_tensor = torch.rand(shape, device=device)

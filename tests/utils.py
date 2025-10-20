@@ -22,9 +22,9 @@ def generate_arguments(use_float=True):
                 atol = 0.01
                 rtol = 0.01
 
-            arguments.append((_random_shape(ndim), dtype, device, atol, rtol))
+            arguments.append((_random_shape(ndim), dtype, device, rtol, atol))
 
-    return "shape, dtype, device, atol, rtol", arguments
+    return "shape, dtype, device, rtol, atol", arguments
 
 
 def gauss(mu=0.0, sigma=1.0):
