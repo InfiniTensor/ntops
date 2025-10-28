@@ -13,6 +13,8 @@ def generate_arguments(use_float=True):
 
     for ndim in range(1, 5):
         for dtype in dtype_arr:
+            device = "cuda"
+
             if dtype is torch.float32:
                 atol = 0.001
                 rtol = 0.001
@@ -20,9 +22,9 @@ def generate_arguments(use_float=True):
                 atol = 0.01
                 rtol = 0.01
 
-            arguments.append((_random_shape(ndim), dtype, atol, rtol))
+            arguments.append((_random_shape(ndim), dtype, device, rtol, atol))
 
-    return "shape, dtype, atol, rtol", arguments
+    return "shape, dtype, device, rtol, atol", arguments
 
 
 def gauss(mu=0.0, sigma=1.0):

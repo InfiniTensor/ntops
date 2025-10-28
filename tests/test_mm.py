@@ -11,6 +11,8 @@ def generate_arguments():
     arguments = []
 
     for dtype in (torch.float32, torch.float16):
+        device = "cuda"
+
         if dtype is torch.float32:
             atol = 0.001
             rtol = 0.001
@@ -25,20 +27,18 @@ def generate_arguments():
         n = generate_random_size()
         k = generate_random_size()
 
-        arguments.append((m, n, k, dtype, atol, rtol))
+        arguments.append((m, n, k, dtype, device, rtol, atol))
 
-    return "m, n, k, dtype, atol, rtol", arguments
+    return "m, n, k, dtype, device, rtol, atol", arguments
 
 
 @skip_if_cuda_not_available
 @pytest.mark.parametrize(*generate_arguments())
-def test_cuda(m, n, k, dtype, atol, rtol):
-    device = "cuda"
-
+def test_mm(m, n, k, dtype, device, rtol, atol):
     input = torch.randn((m, k), dtype=dtype, device=device)
     other = torch.randn((k, n), dtype=dtype, device=device)
 
     ninetoothed_output = ntops.torch.mm(input, other)
     reference_output = torch.mm(input, other)
 
-    assert torch.allclose(ninetoothed_output, reference_output, atol=atol, rtol=rtol)
+    assert torch.allclose(ninetoothed_output, reference_output, rtol=rtol, atol=atol)
