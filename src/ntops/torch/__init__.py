@@ -19,6 +19,7 @@ from ntops.torch.isnan import isnan
 from ntops.torch.layer_norm import layer_norm
 from ntops.torch.le import le
 from ntops.torch.lt import lt
+from ntops.torch.matmul import matmul
 from ntops.torch.mm import mm
 from ntops.torch.mul import mul
 from ntops.torch.ne import ne
@@ -58,6 +59,7 @@ __all__ = [
     "layer_norm",
     "le",
     "lt",
+    "matmul",
     "mm",
     "mul",
     "ne",
