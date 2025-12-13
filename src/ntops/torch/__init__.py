@@ -36,6 +36,11 @@ from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
+from ntops.torch.logsumexp import logsumexp
+from ntops.torch.lp_pool1d import lp_pool1d
+from ntops.torch.lp_pool2d import lp_pool2d
+from ntops.torch.lp_pool3d import lp_pool3d
+from ntops.torch.max import max
 
 __all__ = [
     "abs",
@@ -76,4 +81,9 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "logsumexp",
+    "lp_pool1d",
+    "lp_pool2d",
+    "lp_pool3d",
+    "max",
 ]
