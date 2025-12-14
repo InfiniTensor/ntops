@@ -36,6 +36,11 @@ from ntops.kernels import (
     softmax,
     sub,
     tanh,
+    avg_pool3d,
+    histc,
+    log10,
+    log1p,
+    dot,
 )
 
 __all__ = [
@@ -76,4 +81,9 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "avg_pool3d",
+    "histc",
+    "log10",
+    "log1p",
+    "dot",
 ]
