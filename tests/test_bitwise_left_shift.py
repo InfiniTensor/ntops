@@ -11,6 +11,12 @@ from tests.utils import generate_arguments
 def test_bitwise_left_shift(shape, dtype, device, rtol, atol):
     if dtype == torch.bool:
         return
+    elif dtype == torch.int8:
+        # 这里只支持 uint-8
+        dtype = torch.uint8
+        upper_bound = 10
+        input = torch.randint(0, upper_bound, size=shape, dtype=dtype, device=device)
+        other = torch.randint(0, upper_bound, size=shape, dtype=dtype, device=device)
     else:
         upper_bound = 10
         input = torch.randint(

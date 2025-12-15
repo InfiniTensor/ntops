@@ -14,7 +14,7 @@ def application(input, other, output):
     elif input.dtype == ntl.uint8:
         mask = (other > 7) | (other < 0)
     else:
-        mask = ntl.zeros_like(other, dtype=ntl.bool)
+        mask = ntl.zeros_like(other)
 
     shift = ntl.where(mask, ntl.zeros_like(other), other)
     input = ntl.where(mask, ntl.zeros_like(input), input)
