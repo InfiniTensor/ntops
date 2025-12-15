@@ -36,6 +36,11 @@ from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
+from ntops.torch.bitwise_left_shift import bitwise_left_shift
+from ntops.torch.index_select import index_select
+from ntops.torch.fold import fold
+from ntops.torch.mish import mish
+from ntops.torch.log2 import log2
 
 __all__ = [
     "abs",
@@ -76,4 +81,9 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "bitwise_left_shift",
+    "index_select",
+    "fold",
+    "mish",
+    "log2",
 ]
