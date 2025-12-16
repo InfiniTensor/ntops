@@ -37,6 +37,9 @@ from ntops.kernels import (
     sub,
     tanh,
     logical_or,
+    logical_xor,
+    logsigmoid,
+    where,
 )
 
 __all__ = [
@@ -78,4 +81,8 @@ __all__ = [
     "sub",
     "tanh",
     "logical_or",
+    "logical_xor",
+    "logsigmoid",
+    "where",
+
 ]
