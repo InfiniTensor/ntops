@@ -2,6 +2,7 @@ from ntops.kernels import (
     abs,
     add,
     addmm,
+    all,
     bitwise_and,
     bitwise_not,
     bitwise_or,
@@ -35,7 +36,11 @@ from ntops.kernels import (
     sin,
     softmax,
     sub,
+    sum,
     tanh,
+    topk,
+    var,
+    var_mean,
 )
 
 __all__ = [
@@ -76,4 +81,9 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "sum",
+    "topk",
+    "var",
+    "var_mean",
+    "all",
 ]
