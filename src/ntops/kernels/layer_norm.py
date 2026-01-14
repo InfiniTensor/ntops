@@ -1,6 +1,7 @@
 import functools
 import math
 
+import ninetoothed
 import ninetoothed.language as ntl
 from ninetoothed import Tensor
 
@@ -39,9 +40,9 @@ def premake(ndim, normalized_shape, dtype=None, block_size=None):
         Tensor(ndim, other=0, dtype=dtype),
         Tensor(ndim, dtype=dtype),
         Tensor(ndim, dtype=dtype),
-        Tensor(0, dtype=dtype),
+        Tensor(0, dtype=ninetoothed.float64),
         Tensor(ndim, dtype=dtype),
-        Tensor(0, dtype=dtype, constexpr=True, value=math.prod(normalized_shape)),
+        Tensor(0, constexpr=True, value=math.prod(normalized_shape)),
     )
 
     return arrangement_, application, tensors

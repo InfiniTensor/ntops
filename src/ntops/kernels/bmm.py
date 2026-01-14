@@ -61,7 +61,7 @@ def premake(
         Tensor(3, dtype=dtype),
         Tensor(3, dtype=dtype),
         Tensor(3, dtype=dtype),
-        Tensor(0, dtype=dtype, constexpr=True, value=input_precision),
+        Tensor(0, constexpr=True, value=input_precision),
     )
 
     return arrangement_, application, tensors
