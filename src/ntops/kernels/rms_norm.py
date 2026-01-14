@@ -35,9 +35,9 @@ def premake(
     tensors = (
         Tensor(ndim, other=0, dtype=input_dtype),
         Tensor(ndim, dtype=weight_dtype),
-        Tensor(0, dtype=ninetoothed.float32),
+        Tensor(0, dtype=ninetoothed.float64),
         Tensor(ndim, dtype=output_dtype),
-        Tensor(0, dtype=ninetoothed.uint64),
+        Tensor(0, dtype=ninetoothed.int64),
     )
 
     return arrangement_, application, tensors
