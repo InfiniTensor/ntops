@@ -14,6 +14,7 @@ from ntops.torch.exp import exp
 from ntops.torch.ge import ge
 from ntops.torch.gelu import gelu
 from ntops.torch.gt import gt
+from ntops.torch.index_add import index_add
 from ntops.torch.isinf import isinf
 from ntops.torch.isnan import isnan
 from ntops.torch.layer_norm import layer_norm
@@ -24,6 +25,8 @@ from ntops.torch.mm import mm
 from ntops.torch.mul import mul
 from ntops.torch.ne import ne
 from ntops.torch.neg import neg
+from ntops.torch.nonzero_sum_gt_last2 import nonzero_sum_gt_last2
+from ntops.torch.one_hot import one_hot
 from ntops.torch.pow import pow
 from ntops.torch.relu import relu
 from ntops.torch.rms_norm import rms_norm
@@ -36,6 +39,8 @@ from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
+from ntops.torch.topk import topk
+from ntops.torch.where import where
 
 __all__ = [
     "abs",
@@ -54,6 +59,7 @@ __all__ = [
     "ge",
     "gelu",
     "gt",
+    "index_add",
     "isinf",
     "isnan",
     "layer_norm",
@@ -64,6 +70,8 @@ __all__ = [
     "mul",
     "ne",
     "neg",
+    "nonzero_sum_gt_last2",
+    "one_hot",
     "pow",
     "relu",
     "rms_norm",
@@ -76,4 +84,6 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "topk",
+    "where",
 ]
