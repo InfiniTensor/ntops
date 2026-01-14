@@ -36,6 +36,10 @@ from ntops.kernels import (
     softmax,
     sub,
     tanh,
+    logical_or,
+    logical_xor,
+    logsigmoid,
+    where,
 )
 
 __all__ = [
@@ -76,4 +80,9 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "logical_or",
+    "logical_xor",
+    "logsigmoid",
+    "where",
+
 ]
