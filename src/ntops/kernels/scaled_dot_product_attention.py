@@ -229,10 +229,10 @@ def premake(
     present_key, present_value, present_key_slot, present_value_slot = (
         Tensor(4, dtype=dtype) for _ in range(4)
     )
-    scale = Tensor(0, dtype=dtype)
-    is_causal = Tensor(0, dtype=dtype, constexpr=True, value=is_causal)
-    with_attn_mask = Tensor(0, dtype=dtype, constexpr=True, value=with_attn_mask)
-    causal_variant = Tensor(0, dtype=dtype, constexpr=True, value=causal_variant)
+    scale = Tensor(0, dtype=ninetoothed.float64)
+    is_causal = Tensor(0, constexpr=True, value=is_causal)
+    with_attn_mask = Tensor(0, constexpr=True, value=with_attn_mask)
+    causal_variant = Tensor(0, constexpr=True, value=causal_variant)
 
     if emb_dim is not None:
         for tensor in (query, key, value, attn_mask, output):

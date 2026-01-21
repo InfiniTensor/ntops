@@ -1,5 +1,6 @@
 import functools
 
+import ninetoothed
 import ninetoothed.language as ntl
 from ninetoothed import Tensor
 
@@ -15,8 +16,8 @@ def premake(ndim, dtype=None, block_size=None):
 
     tensors = (
         Tensor(ndim, dtype=dtype),
-        Tensor(0, dtype=dtype),
-        Tensor(0, dtype=dtype),
+        Tensor(0, dtype=ninetoothed.float64),
+        Tensor(0, dtype=ninetoothed.int64),
         Tensor(ndim, dtype=dtype),
     )
 
