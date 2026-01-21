@@ -1,6 +1,7 @@
 from ntops.torch.abs import abs
 from ntops.torch.add import add
 from ntops.torch.addmm import addmm
+from ntops.torch.all import all
 from ntops.torch.bitwise_and import bitwise_and
 from ntops.torch.bitwise_not import bitwise_not
 from ntops.torch.bitwise_or import bitwise_or
@@ -35,7 +36,11 @@ from ntops.torch.silu import silu
 from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
+from ntops.torch.sum import sum
 from ntops.torch.tanh import tanh
+from ntops.torch.topk import topk
+from ntops.torch.var import var
+from ntops.torch.var_mean import var_mean
 
 __all__ = [
     "abs",
@@ -76,4 +81,9 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "sum",
+    "topk",
+    "var",
+    "var_mean",
+    "all",
 ]
