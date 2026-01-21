@@ -36,6 +36,11 @@ from ntops.kernels import (
     softmax,
     sub,
     tanh,
+    bitwise_left_shift,
+    index_select,
+    fold,
+    mish,
+    log2,
 )
 
 __all__ = [
@@ -76,4 +81,9 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "bitwise_left_shift",
+    "index_select",
+    "fold",
+    "mish",
+    "log2",
 ]
