@@ -20,6 +20,7 @@ from ntops.torch.layer_norm import layer_norm
 from ntops.torch.le import le
 from ntops.torch.lt import lt
 from ntops.torch.matmul import matmul
+from ntops.torch.max_pool2d import max_pool2d
 from ntops.torch.mm import mm
 from ntops.torch.mul import mul
 from ntops.torch.ne import ne
@@ -60,6 +61,7 @@ __all__ = [
     "le",
     "lt",
     "matmul",
+    "max_pool2d",
     "mm",
     "mul",
     "ne",
