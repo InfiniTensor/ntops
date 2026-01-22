@@ -7,6 +7,7 @@ from ntops.torch.bitwise_not import bitwise_not
 from ntops.torch.bitwise_or import bitwise_or
 from ntops.torch.bmm import bmm
 from ntops.torch.clamp import clamp
+from ntops.torch.conv2d import conv2d
 from ntops.torch.cos import cos
 from ntops.torch.div import div
 from ntops.torch.dropout import dropout
@@ -49,6 +50,7 @@ __all__ = [
     "bitwise_or",
     "bmm",
     "clamp",
+    "conv2d",
     "cos",
     "div",
     "dropout",
