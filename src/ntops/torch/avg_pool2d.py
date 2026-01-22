@@ -1,8 +1,7 @@
-import math
-
 import torch
 
 import ntops
+from ntops.torch.pooling import _calculate_output_size
 from ntops.torch.utils import _cached_make
 
 
@@ -32,18 +31,12 @@ def avg_pool2d(
 
     n, c, h, w = input.shape
 
-    def _calculate_output_size(input_size, kernel_size, stride, padding, ceil_mode):
-        int_ = math.ceil if ceil_mode else math.floor
-
-        result = int_((input_size + 2 * padding - kernel_size) / stride + 1)
-
-        if ceil_mode and (result - 1) * stride >= input_size + padding:
-            result -= 1
-
-        return result
-
-    h_ = _calculate_output_size(h, kernel_size[0], stride[0], padding[0], ceil_mode)
-    w_ = _calculate_output_size(w, kernel_size[1], stride[1], padding[1], ceil_mode)
+    h_ = _calculate_output_size(
+        h, kernel_size[0], stride=stride[0], padding=padding[0], ceil_mode=ceil_mode
+    )
+    w_ = _calculate_output_size(
+        w, kernel_size[1], stride=stride[1], padding=padding[1], ceil_mode=ceil_mode
+    )
 
     output = torch.empty((n, c, h_, w_), dtype=input.dtype, device=input.device)
 
