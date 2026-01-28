@@ -36,6 +36,11 @@ from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
+from ntops.torch.maximum import maximum
+from ntops.torch.atan import atan
+from ntops.torch.batch_norm import batch_norm
+from ntops.torch.bincount import bincount
+from ntops.torch.adaptive_max_pool2d import adaptive_max_pool2d
 
 __all__ = [
     "abs",
@@ -76,4 +81,9 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "maximum",
+    "atan",
+    "batch_norm",
+    "bincount",
+    "adaptive_max_pool2d",
 ]

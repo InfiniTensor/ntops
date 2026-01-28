@@ -36,6 +36,11 @@ from ntops.kernels import (
     softmax,
     sub,
     tanh,
+    maximum,
+    atan,
+    batch_norm,
+    bincount,
+    adaptive_max_pool2d,  
 )
 
 __all__ = [
@@ -76,4 +81,9 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "maximum",
+    "atan",
+    "batch_norm",
+    "bincount",
+    "adaptive_max_pool2d",
 ]
