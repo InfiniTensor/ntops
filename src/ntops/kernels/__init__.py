@@ -39,6 +39,11 @@ from ntops.kernels import (
     softmax,
     sub,
     tanh,
+    embedding,
+    cosine_embedding_loss,
+    hardshrink,
+    argmin,
+    hardsigmoid,
 )
 
 __all__ = [
@@ -82,4 +87,9 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "embedding",
+    "cosine_embedding_loss",
+    "hardshrink",
+    "argmin",
+    "hardsigmoid",
 ]
