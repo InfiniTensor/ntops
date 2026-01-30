@@ -11,8 +11,10 @@ from ntops.torch.div import div
 from ntops.torch.dropout import dropout
 from ntops.torch.eq import eq
 from ntops.torch.exp import exp
+from ntops.torch.gcd import gcd
 from ntops.torch.ge import ge
 from ntops.torch.gelu import gelu
+from ntops.torch.glu import glu
 from ntops.torch.gt import gt
 from ntops.torch.isinf import isinf
 from ntops.torch.isnan import isnan
@@ -24,12 +26,14 @@ from ntops.torch.mm import mm
 from ntops.torch.mul import mul
 from ntops.torch.ne import ne
 from ntops.torch.neg import neg
+from ntops.torch.nll_loss import nll_loss
 from ntops.torch.pow import pow
 from ntops.torch.relu import relu
 from ntops.torch.rms_norm import rms_norm
 from ntops.torch.rotary_position_embedding import rotary_position_embedding
 from ntops.torch.rsqrt import rsqrt
 from ntops.torch.scaled_dot_product_attention import scaled_dot_product_attention
+from ntops.torch.select_scatter import select_scatter
 from ntops.torch.sigmoid import sigmoid
 from ntops.torch.silu import silu
 from ntops.torch.sin import sin
@@ -76,4 +80,8 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "gcd",
+    "select_scatter",
+    "nll_loss",
+    "glu",
 ]

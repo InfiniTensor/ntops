@@ -2,6 +2,7 @@ import functools
 
 import ninetoothed.language as ntl
 from ninetoothed import Tensor
+
 from ntops.kernels.element_wise import arrangement
 
 
@@ -21,7 +22,7 @@ def application(input, other, output):
         r = a % safe_b
         a = ntl.where(mask, b, a)
         b = ntl.where(mask, r, b)
-        
+
         mask = b != 0
         safe_b = ntl.where(mask, b, 1)
         r = a % safe_b

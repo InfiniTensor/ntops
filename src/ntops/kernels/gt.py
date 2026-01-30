@@ -1,12 +1,15 @@
 import functools
 
+import ninetoothed.language as ntl
 from ninetoothed import Tensor
 
 from ntops.kernels.element_wise import arrangement
 
 
 def application(input, other, output):
-    output = input > other  # noqa: F841
+    tmp = input > other
+    result = ntl.cast(tmp, output.dtype)
+    output = result
 
 
 def premake(ndim, dtype=None, block_size=None):
@@ -15,7 +18,7 @@ def premake(ndim, dtype=None, block_size=None):
     tensors = (
         Tensor(ndim, dtype=dtype),
         Tensor(ndim, dtype=dtype),
-        Tensor(ndim, dtype=dtype),
+        Tensor(ndim),
     )
 
     return arrangement_, application, tensors
