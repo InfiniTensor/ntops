@@ -1,11 +1,13 @@
 from ntops.torch.abs import abs
 from ntops.torch.add import add
 from ntops.torch.addmm import addmm
+from ntops.torch.avg_pool2d import avg_pool2d
 from ntops.torch.bitwise_and import bitwise_and
 from ntops.torch.bitwise_not import bitwise_not
 from ntops.torch.bitwise_or import bitwise_or
 from ntops.torch.bmm import bmm
 from ntops.torch.clamp import clamp
+from ntops.torch.conv2d import conv2d
 from ntops.torch.cos import cos
 from ntops.torch.div import div
 from ntops.torch.dropout import dropout
@@ -20,6 +22,7 @@ from ntops.torch.layer_norm import layer_norm
 from ntops.torch.le import le
 from ntops.torch.lt import lt
 from ntops.torch.matmul import matmul
+from ntops.torch.max_pool2d import max_pool2d
 from ntops.torch.mm import mm
 from ntops.torch.mul import mul
 from ntops.torch.ne import ne
@@ -41,11 +44,13 @@ __all__ = [
     "abs",
     "add",
     "addmm",
+    "avg_pool2d",
     "bitwise_and",
     "bitwise_not",
     "bitwise_or",
     "bmm",
     "clamp",
+    "conv2d",
     "cos",
     "div",
     "dropout",
@@ -60,6 +65,7 @@ __all__ = [
     "le",
     "lt",
     "matmul",
+    "max_pool2d",
     "mm",
     "mul",
     "ne",
