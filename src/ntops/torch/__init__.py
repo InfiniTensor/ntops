@@ -39,6 +39,11 @@ from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
+from ntops.torch.max_pool1d import max_pool1d
+from ntops.torch.max_pool3d import max_pool3d
+from ntops.torch.stack import stack
+from ntops.torch.mean import mean
+from ntops.torch.median import median
 
 __all__ = [
     "abs",
@@ -81,5 +86,10 @@ __all__ = [
     "sin",
     "softmax",
     "sub",
-    "tanh",
+    "tanh",    
+    "max_pool1d",
+    "max_pool3d",
+    "stack",
+    "mean",
+    "median",
 ]
