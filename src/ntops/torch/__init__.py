@@ -1,10 +1,14 @@
 from ntops.torch.abs import abs
 from ntops.torch.add import add
+from ntops.torch.addcdiv import addcdiv
 from ntops.torch.addmm import addmm
+from ntops.torch.atan2 import atan2
+from ntops.torch.binary_cross_entropy import binary_cross_entropy
 from ntops.torch.bitwise_and import bitwise_and
 from ntops.torch.bitwise_not import bitwise_not
 from ntops.torch.bitwise_or import bitwise_or
 from ntops.torch.bmm import bmm
+from ntops.torch.bucketize import bucketize
 from ntops.torch.clamp import clamp
 from ntops.torch.cos import cos
 from ntops.torch.div import div
@@ -20,6 +24,7 @@ from ntops.torch.layer_norm import layer_norm
 from ntops.torch.le import le
 from ntops.torch.lt import lt
 from ntops.torch.matmul import matmul
+from ntops.torch.minimum import minimum
 from ntops.torch.mm import mm
 from ntops.torch.mul import mul
 from ntops.torch.ne import ne
@@ -76,4 +81,9 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "minimum",
+    "atan2",
+    "addcdiv",
+    "bucketize",
+    "binary_cross_entropy",
 ]
