@@ -39,6 +39,11 @@ from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
+from ntops.torch.logical_or import logical_or
+from ntops.torch.logical_xor import logical_xor
+from ntops.torch.logsigmoid import logsigmoid
+from ntops.torch.where import where
+
 
 __all__ = [
     "abs",
@@ -82,4 +87,9 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "logical_or",
+    "logical_xor",
+    "logsigmoid",
+    "where",
+
 ]
