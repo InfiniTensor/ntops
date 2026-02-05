@@ -39,7 +39,8 @@ from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
-
+from ntops.torch.logical_and import logical_and
+from ntops.torch.logical_not import logical_not
 __all__ = [
     "abs",
     "add",
@@ -77,6 +78,8 @@ __all__ = [
     "rsqrt",
     "scaled_dot_product_attention",
     "sigmoid",
+    "logical_not",
+    "logical_and"
     "silu",
     "sin",
     "softmax",
