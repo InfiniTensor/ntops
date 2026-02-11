@@ -39,6 +39,11 @@ from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
+from ntops.torch.avg_pool3d import avg_pool3d
+from ntops.torch.histc import histc
+from ntops.torch.log10 import log10
+from ntops.torch.log1p import log1p
+from ntops.torch.dot import dot
 
 __all__ = [
     "abs",
@@ -82,4 +87,9 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "avg_pool3d",
+    "histc",
+    "log10",
+    "log1p",
+    "dot",
 ]
