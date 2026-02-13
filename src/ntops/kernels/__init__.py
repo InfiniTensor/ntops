@@ -17,6 +17,7 @@ from ntops.kernels import (
     ge,
     gelu,
     gt,
+    index_add,
     isinf,
     isnan,
     layer_norm,
@@ -27,6 +28,8 @@ from ntops.kernels import (
     mul,
     ne,
     neg,
+    nonzero_sum_gt_last2,
+    one_hot,
     pow,
     relu,
     rms_norm,
@@ -39,6 +42,8 @@ from ntops.kernels import (
     softmax,
     sub,
     tanh,
+    topk,
+    where,
 )
 
 __all__ = [
@@ -60,6 +65,7 @@ __all__ = [
     "ge",
     "gelu",
     "gt",
+    "index_add",
     "isinf",
     "isnan",
     "layer_norm",
@@ -70,6 +76,8 @@ __all__ = [
     "mul",
     "ne",
     "neg",
+    "nonzero_sum_gt_last2",
+    "one_hot",
     "pow",
     "relu",
     "rms_norm",
@@ -82,4 +90,6 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "topk",
+    "where",
 ]
