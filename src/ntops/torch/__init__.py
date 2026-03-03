@@ -33,7 +33,9 @@ from ntops.torch.rms_norm import rms_norm
 from ntops.torch.rotary_position_embedding import rotary_position_embedding
 from ntops.torch.rsqrt import rsqrt
 from ntops.torch.scaled_dot_product_attention import scaled_dot_product_attention
+from ntops.torch.sgn import sgn
 from ntops.torch.sigmoid import sigmoid
+from ntops.torch.sign import sign
 from ntops.torch.signbit import signbit
 from ntops.torch.silu import silu
 from ntops.torch.sin import sin
@@ -77,7 +79,9 @@ __all__ = [
     "rotary_position_embedding",
     "rsqrt",
     "scaled_dot_product_attention",
+    "sgn",
     "sigmoid",
+    "sign",
     "signbit",
     "silu",
     "sin",
