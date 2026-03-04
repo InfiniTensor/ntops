@@ -40,6 +40,7 @@ from ntops.kernels import (
     softmax,
     sub,
     tanh,
+    threshold,
 )
 
 __all__ = [
@@ -84,4 +85,5 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "threshold",
 ]

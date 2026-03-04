@@ -40,6 +40,7 @@ from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
+from ntops.torch.threshold import threshold
 
 __all__ = [
     "abs",
@@ -84,4 +85,5 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "threshold",
 ]
