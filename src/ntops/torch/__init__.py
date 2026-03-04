@@ -30,6 +30,7 @@ from ntops.torch.neg import neg
 from ntops.torch.pow import pow
 from ntops.torch.relu import relu
 from ntops.torch.rms_norm import rms_norm
+from ntops.torch.rot90 import rot90
 from ntops.torch.rotary_position_embedding import rotary_position_embedding
 from ntops.torch.rsqrt import rsqrt
 from ntops.torch.scaled_dot_product_attention import scaled_dot_product_attention
@@ -77,6 +78,7 @@ __all__ = [
     "pow",
     "relu",
     "rms_norm",
+    "rot90",
     "rotary_position_embedding",
     "rsqrt",
     "scaled_dot_product_attention",
