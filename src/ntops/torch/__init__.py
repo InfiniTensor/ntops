@@ -6,6 +6,7 @@ from ntops.torch.bitwise_and import bitwise_and
 from ntops.torch.bitwise_not import bitwise_not
 from ntops.torch.bitwise_or import bitwise_or
 from ntops.torch.bmm import bmm
+from ntops.torch.celu import celu
 from ntops.torch.clamp import clamp
 from ntops.torch.conv2d import conv2d
 from ntops.torch.cos import cos
@@ -49,6 +50,7 @@ __all__ = [
     "bitwise_not",
     "bitwise_or",
     "bmm",
+    "celu",
     "clamp",
     "conv2d",
     "cos",
