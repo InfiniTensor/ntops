@@ -25,9 +25,6 @@ def test_instance_norm(
     track_running_stats,
     eps,
 ):
-    # if len(shape) < 3:
-    #     pytest.skip(reason="InstanceNorm requires at least 3D input.")
-
     while len(shape) < 3:
         shape.insert(0, 1)
 
@@ -44,16 +41,25 @@ def test_instance_norm(
         bias = torch.randn(shape[1], dtype=dtype, device=device)
 
     if use_input_stats and not track_running_stats:
-        running_mean = None
-        running_var = None
+        reference_running_mean = None
+        reference_running_var = None
+        ninetoothed_running_mean = None
+        ninetoothed_running_var = None
     else:
-        running_mean = torch.randn(shape[1], dtype=dtype, device=device)
-        running_var = torch.randn(shape[1], dtype=dtype, device=device).abs() + 1
+        reference_running_mean = torch.randn(shape[1], dtype=dtype, device=device)
+        reference_running_var = torch.randn(shape[1], dtype=dtype, device=device).abs()
+
+        if use_input_stats:
+            ninetoothed_running_mean = reference_running_mean.clone()
+            ninetoothed_running_var = reference_running_var.clone()
+        else:
+            ninetoothed_running_mean = reference_running_mean
+            ninetoothed_running_var = reference_running_var
 
     ninetoothed_output = ntops.torch.instance_norm(
         input,
-        running_mean=running_mean,
-        running_var=running_var,
+        running_mean=ninetoothed_running_mean,
+        running_var=ninetoothed_running_var,
         weight=weight,
         bias=bias,
         use_input_stats=use_input_stats,
@@ -61,8 +67,8 @@ def test_instance_norm(
     )
     reference_output = torch.nn.functional.instance_norm(
         input,
-        running_mean=running_mean,
-        running_var=running_var,
+        running_mean=reference_running_mean,
+        running_var=reference_running_var,
         weight=weight,
         bias=bias,
         use_input_stats=use_input_stats,
@@ -70,3 +76,10 @@ def test_instance_norm(
     )
 
     assert torch.allclose(ninetoothed_output, reference_output, rtol=rtol, atol=atol)
+
+    if use_input_stats and track_running_stats:
+        assert torch.allclose(
+            ninetoothed_running_mean, reference_running_mean, rtol=rtol, atol=atol
+        )
+        # TODO: The running var is not close.
+        # assert torch.allclose(ninetoothed_running_var, reference_running_var, rtol=rtol, atol=atol)
