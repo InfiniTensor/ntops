@@ -17,6 +17,7 @@ from ntops.torch.exp import exp
 from ntops.torch.ge import ge
 from ntops.torch.gelu import gelu
 from ntops.torch.gt import gt
+from ntops.torch.instance_norm import instance_norm
 from ntops.torch.isinf import isinf
 from ntops.torch.isnan import isnan
 from ntops.torch.layer_norm import layer_norm
@@ -62,6 +63,7 @@ __all__ = [
     "ge",
     "gelu",
     "gt",
+    "instance_norm",
     "isinf",
     "isnan",
     "layer_norm",
