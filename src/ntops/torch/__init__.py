@@ -39,6 +39,11 @@ from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
+from ntops.torch.embedding import embedding
+from ntops.torch.cosine_embedding_loss import cosine_embedding_loss
+from ntops.torch.hardshrink import hardshrink
+from ntops.torch.argmin import argmin
+from ntops.torch.hardsigmoid import hardsigmoid
 
 __all__ = [
     "abs",
@@ -82,4 +87,9 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "embedding",
+    "cosine_embedding_loss",
+    "hardshrink",
+    "argmin",
+    "hardsigmoid",
 ]
