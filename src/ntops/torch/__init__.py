@@ -26,6 +26,7 @@ from ntops.torch.lt import lt
 from ntops.torch.matmul import matmul
 from ntops.torch.max_pool2d import max_pool2d
 from ntops.torch.mm import mm
+from ntops.torch.msort import msort
 from ntops.torch.mul import mul
 from ntops.torch.ne import ne
 from ntops.torch.neg import neg
@@ -72,6 +73,7 @@ __all__ = [
     "matmul",
     "max_pool2d",
     "mm",
+    "msort",
     "mul",
     "ne",
     "neg",
