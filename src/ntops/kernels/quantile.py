@@ -4,8 +4,8 @@ import ninetoothed.language as ntl
 from ninetoothed import Tensor
 
 
-def arrangement(input, q, dim_size, output, dim, block_size=None):
-    def _arrange_input_or_output(tensor, dim):
+def arrangement(input, q, output, dim, block_size=None):
+    def _arrange_input_or_output(tensor, dim=0):
         ndim = tensor.ndim
 
         if dim < 0:
@@ -23,8 +23,13 @@ def arrangement(input, q, dim_size, output, dim, block_size=None):
 
         return arranged
 
-    input_arranged = _arrange_input_or_output(input, dim)
-    output_arranged = _arrange_input_or_output(output, 0)
+    if dim is None:
+        input_arranged = input.flatten()
+        input_arranged = input_arranged.tile((-1,))
+    else:
+        input_arranged = _arrange_input_or_output(input, dim=dim)
+
+    output_arranged = _arrange_input_or_output(output)
 
     q_arranged = q.tile((-1,))
     q_arranged = q_arranged.squeeze(0)
@@ -34,10 +39,11 @@ def arrangement(input, q, dim_size, output, dim, block_size=None):
 
     q_arranged = q_arranged.expand(output_arranged.shape)
 
-    return input_arranged, q_arranged, dim_size, output_arranged
+    return input_arranged, q_arranged, output_arranged
 
 
-def linear_application(input, q, dim_size, output):
+def linear_application(input, q, output):
+    dim_size = input.shape[0]
     pos = ntl.cast(q * (dim_size - 1), ntl.float32)
     i = ntl.cast(ntl.floor(pos), ntl.int32)
     j = ntl.cast(ntl.ceil(pos), ntl.int32)
@@ -50,7 +56,8 @@ def linear_application(input, q, dim_size, output):
     output = lower_value + frac * (higher_value - lower_value)  # noqa: F841
 
 
-def lower_application(input, q, dim_size, output):
+def lower_application(input, q, output):
+    dim_size = input.shape[0]
     pos = ntl.cast(q * (dim_size - 1), ntl.float32)
     i = ntl.cast(ntl.floor(pos), ntl.int32)
 
@@ -60,7 +67,8 @@ def lower_application(input, q, dim_size, output):
     output = lower_value  # noqa: F841
 
 
-def higher_application(input, q, dim_size, output):
+def higher_application(input, q, output):
+    dim_size = input.shape[0]
     pos = ntl.cast(q * (dim_size - 1), ntl.float32)
     j = ntl.cast(ntl.ceil(pos), ntl.int32)
 
@@ -70,7 +78,8 @@ def higher_application(input, q, dim_size, output):
     output = higher_value  # noqa: F841
 
 
-def nearest_application(input, q, dim_size, output):
+def nearest_application(input, q, output):
+    dim_size = input.shape[0]
     pos = ntl.cast(q * (dim_size - 1), ntl.float32)
 
     # Rounding mode for float to int conversion is always towards zero,
@@ -84,7 +93,9 @@ def nearest_application(input, q, dim_size, output):
     output = ntl.gather(sorted, i, 0)  # noqa: F841
 
 
-def midpoint_application(input, q, dim_size, output):
+def midpoint_application(input, q, output):
+    dim_size = input.shape[0]
+
     pos = ntl.cast(q * (dim_size - 1), ntl.float32)
     i = ntl.cast(ntl.floor(pos), ntl.int32)
     j = ntl.cast(ntl.ceil(pos), ntl.int32)
@@ -99,11 +110,20 @@ def midpoint_application(input, q, dim_size, output):
 def premake(in_ndim, out_ndim, dim, interpolation, dtype=None, block_size=None):
     arrangement_ = functools.partial(arrangement, dim=dim, block_size=block_size)
 
+    input_shape_options = (
+        {"constexpr": True}
+        if dim is None
+        else (None if i != dim else {"constexpr": True} for i in range(in_ndim))
+    )
+    q_shape_options = {"constexpr": True}
+    output_shape_options = ({"constexpr": True},) + (None,) * (out_ndim - 1)
+
     tensors = (
-        Tensor(in_ndim, dtype=dtype, shape_options={"constexpr": True}),
-        Tensor(1, dtype=dtype, shape_options={"constexpr": True}),
-        Tensor(0),
-        Tensor(out_ndim, dtype=dtype, shape_options={"constexpr": True}),
+        Tensor(
+            in_ndim, dtype=dtype, other=float("inf"), shape_options=input_shape_options
+        ),
+        Tensor(1, dtype=dtype, shape_options=q_shape_options),
+        Tensor(out_ndim, dtype=dtype, shape_options=output_shape_options),
     )
 
     if interpolation == "linear":
