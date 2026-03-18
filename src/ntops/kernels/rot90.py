@@ -1,88 +1,112 @@
 import functools
 
-import ninetoothed
 import ninetoothed.language as ntl
 from ninetoothed import Tensor
 
 
-def arrangement(input, output, k, dims, block_size=None):
+def arrangement(input, output, k, dims, dim_sizes, block_size=None):
+    def _arrange(input, output, dim, dim_size):
+        dims = dim
+        dim_sizes = dim_size
+
+        if isinstance(dims, int):
+            dims = (dims,)
+
+        if isinstance(dim_sizes, int):
+            dim_sizes = (dim_sizes,)
+
+        assert len(dims) == len(dim_sizes)
+
+        ndim = input.ndim
+        dims = tuple(dim if dim >= 0 else dim + ndim for dim in dims)
+        non_target_dims = tuple(i for i in range(ndim) if i not in dims)
+
+        input_arranged = input.permute(non_target_dims + dims)
+        output_arranged = output.permute(non_target_dims + dims)
+
+        input_arranged = input_arranged.pad(
+            tuple((0, 0) for _ in non_target_dims)
+            + tuple(((-size) % block_size, 0) for size in dim_sizes)
+        )
+
+        inner_block_shape = tuple(1 for _ in non_target_dims) + tuple(
+            block_size for _ in range(len(dims))
+        )
+        outer_block_shape = tuple(1 for _ in non_target_dims) + tuple(
+            -1 for _ in range(len(dims))
+        )
+        non_target_dim_indices = tuple(range(len(non_target_dims)))
+
+        arranged = []
+        for tensor in (input_arranged, output_arranged):
+            tensor = tensor.tile(inner_block_shape)
+            tensor = tensor.tile(outer_block_shape)
+            tensor.dtype = tensor.dtype.squeeze(non_target_dim_indices)
+            tensor.dtype.dtype = tensor.dtype.dtype.squeeze(non_target_dim_indices)
+            arranged.append(tensor)
+
+        return tuple(arranged)
+
+    def _transpose(tensor, dims):
+        perm = list(range(tensor.ndim))
+        for i, dim in enumerate(dims):
+            perm[dim] = dims[(i + 1) % len(dims)]
+
+        return tensor.permute(perm)
+
     if block_size is None:
-        block_size = ninetoothed.block_size()
-
-    ndim = input.ndim
-    dims = tuple(dim if dim >= 0 else dim + ndim for dim in dims)
-    non_target_dims = tuple(i for i in range(ndim) if i not in dims)
-
-    def _arrange_0(tensor):
-        arranged = tensor.flatten()
-        arranged = arranged.tile((block_size,))
-
-        return arranged
-
-    def _arrange_1_or_3(tensor, dims):
-        arranged = tensor.permute(non_target_dims + dims)
-        arranged = arranged.flatten(end_dim=-1)
-        arranged = arranged.tile((1, -1))
-        arranged.dtype = arranged.dtype.squeeze(0)
-
-        return arranged
-
-    def _arrange_2(tensor, dims):
-        arranged = tensor.permute(non_target_dims + dims)
-
-        if ndim == 2:
-            arranged = arranged.unsqueeze(0)
-
-        arranged = arranged.flatten(end_dim=-2)
-        arranged = arranged.tile((1, -1, -1))
-        arranged.dtype = arranged.dtype.squeeze(0)
-
-        return arranged
+        # `block_size` is used to compute paddings, so it cannot be `ninetoothed.Symbol`.
+        block_size = 32
 
     if k % 4 == 0:
-        input_arranged = _arrange_0(input)
-        output_arranged = _arrange_0(output)
-    elif k % 4 == 1:
-        input_arranged = _arrange_1_or_3(input, dims)
-        output_arranged = _arrange_1_or_3(output, tuple(reversed(dims)))
-    elif k % 4 == 3:
-        input_arranged = _arrange_1_or_3(input, tuple(reversed(dims)))
-        output_arranged = _arrange_1_or_3(output, dims)
-    else:  # k % 4 == 2
-        input_arranged = _arrange_2(input, dims)
-        output_arranged = _arrange_2(output, dims)
+        input_arranged = input.flatten().tile((block_size,))
+        output_arranged = output.flatten().tile((block_size,))
+    else:
+        if k % 2 == 1:
+            input = _transpose(input, dims)
+            dims = dims[(k % 4) >> 1]
+            dim_sizes = dim_sizes[((k % 4) >> 1) ^ 1]
+
+        input_arranged, output_arranged = _arrange(input, output, dims, dim_sizes)
 
     return input_arranged, output_arranged
 
 
-def application_0(input, output):
+def application_copy(input, output):
     output = input  # noqa: F841
 
 
-def application_1_or_3(input, output):
-    if input.shape[0] == 1:
-        output = input  # noqa: F841
-    else:
-        output = ntl.flip(input, 0)  # noqa: F841
+def application_1D_flip(input, output):
+    i_size = input.shape[0]
+    for i in range(i_size):
+        output[i] = ntl.flip(input[i_size - 1 - i], 0)
 
 
-def application_2(input, output):
-    output = ntl.flip(ntl.flip(input, 0), 1)  # noqa: F841
+def application_2D_flip(input, output):
+    i_size = input.shape[0]
+    j_size = input.shape[1]
+    for i in range(i_size):
+        for j in range(j_size):
+            output[i, j] = ntl.flip(
+                ntl.flip(input[i_size - 1 - i, j_size - 1 - j], 0), 1
+            )
 
 
-def premake(ndim, k, dims, dtype=None, block_size=None):
-    arrangement_ = functools.partial(arrangement, k=k, dims=dims, block_size=block_size)
+def premake(ndim, k, dims, dim_sizes, dtype=None, block_size=None):
+    arrangement_ = functools.partial(
+        arrangement, k=k, dims=dims, dim_sizes=dim_sizes, block_size=block_size
+    )
 
     tensors = (
-        Tensor(ndim, dtype=dtype, shape_options={"constexpr": True}),
-        Tensor(ndim, dtype=dtype, shape_options={"constexpr": True}),
+        Tensor(ndim, dtype=dtype),
+        Tensor(ndim, dtype=dtype),
     )
 
     if k % 4 == 0:
-        application = application_0
+        application = application_copy
     elif k % 4 == 2:
-        application = application_2
-    else:  # k % 4 == 1 or 3
-        application = application_1_or_3
+        application = application_2D_flip
+    else:
+        application = application_1D_flip
 
     return arrangement_, application, tensors

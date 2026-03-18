@@ -11,7 +11,7 @@ from tests.utils import generate_arguments
 @skip_if_cuda_not_available
 @pytest.mark.parametrize("k", (0, 1, 2, 3))
 @pytest.mark.parametrize(*generate_arguments())
-def test_rot90(shape, k, dtype, device, rtol, atol):
+def test_rot90(shape, dtype, device, rtol, atol, k):
     if len(shape) < 2:
         shape.append(2)
 
