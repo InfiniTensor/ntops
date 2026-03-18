@@ -2,7 +2,6 @@ import functools
 
 import ninetoothed
 import torch
-import torch.nn.functional as F
 
 import ntops
 
@@ -69,49 +68,3 @@ def _get_matmul_input_precision():
         return ntops.kernels.mm.InputPrecisionVariant.IEEE
 
     return ntops.kernels.mm.InputPrecisionVariant.TF32
-
-
-# Current ninetoothed (0.23.0) does not support `ninetoothed.Tensor.pad` yet,
-# so we use `torch.nn.functional.pad` for now.
-# Todo: Switch to `ninetoothed.Tensor.pad` once it's supported.
-def _pad_dims_to_next_power_of_2(tensor, dims, padding_right=True, value=0):
-    if isinstance(dims, int):
-        target_dims = [dims]
-    elif isinstance(dims, (list, tuple)):
-        target_dims = list(dims)
-    else:
-        raise ValueError("dims must be an int or a list/tuple of ints")
-
-    for i, d in enumerate(target_dims):
-        if d < 0:
-            d += tensor.ndim
-
-        if d < 0 or d >= tensor.ndim:
-            raise ValueError(f"Invalid dims: {dims}")
-
-        target_dims[i] = d
-
-    padding = [0] * (tensor.ndim * 2)
-    padding_flag = False
-
-    for d in target_dims:
-        current_len = tensor.size(d)
-
-        if (current_len & (current_len - 1)) == 0:
-            continue
-        else:
-            padding_flag = True
-            exponent = current_len.bit_length()
-            target_len = 1 << exponent
-
-        pad_len = target_len - current_len
-
-        pad_idx = (tensor.ndim - 1 - d) * 2 + (1 if padding_right else 0)
-        padding[pad_idx] = pad_len
-
-    if not padding_flag:
-        return tensor
-
-    padded_tensor = F.pad(tensor, padding, mode="constant", value=value)
-
-    return padded_tensor
