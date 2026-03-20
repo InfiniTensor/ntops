@@ -31,6 +31,7 @@ from ntops.torch.pow import pow
 from ntops.torch.relu import relu
 from ntops.torch.rms_norm import rms_norm
 from ntops.torch.rotary_position_embedding import rotary_position_embedding
+from ntops.torch.round import round
 from ntops.torch.rsqrt import rsqrt
 from ntops.torch.scaled_dot_product_attention import scaled_dot_product_attention
 from ntops.torch.sigmoid import sigmoid
@@ -74,6 +75,7 @@ __all__ = [
     "relu",
     "rms_norm",
     "rotary_position_embedding",
+    "round",
     "rsqrt",
     "scaled_dot_product_attention",
     "sigmoid",
