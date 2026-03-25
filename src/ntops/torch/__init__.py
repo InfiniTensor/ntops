@@ -9,6 +9,7 @@ from ntops.torch.bmm import bmm
 from ntops.torch.clamp import clamp
 from ntops.torch.conv2d import conv2d
 from ntops.torch.cos import cos
+from ntops.torch.cosh import cosh
 from ntops.torch.div import div
 from ntops.torch.dropout import dropout
 from ntops.torch.eq import eq
@@ -53,6 +54,7 @@ __all__ = [
     "clamp",
     "conv2d",
     "cos",
+    "cosh",
     "div",
     "dropout",
     "eq",
