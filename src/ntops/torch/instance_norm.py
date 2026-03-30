@@ -22,23 +22,11 @@ def instance_norm(
     if bias is None:
         bias = torch.zeros(input.shape[1], device=input.device, dtype=input.dtype)
 
-    tracking_running_stats = False
+    has_running_stats = running_mean is not None and running_var is not None
 
-    if not use_input_stats:
-        assert running_mean is not None and running_var is not None, (
-            "`running_mean` and `running_var` must be provided when `use_input_stats=False`."
-        )
-        assert running_mean.shape == (input.shape[1],) and running_var.shape == (
-            input.shape[1],
-        ), "`running_mean` and `running_var` must have shape (C,)"
-    else:
-        if running_mean is not None and running_var is not None:
-            assert running_mean.shape == (input.shape[1],) and running_var.shape == (
-                input.shape[1],
-            ), "`running_mean` and `running_var` must have shape (C,)"
-            tracking_running_stats = True
-            tmp_mean = torch.zeros_like(running_mean)
-            tmp_var = torch.zeros_like(running_var)
+    if use_input_stats:
+        mean = torch.empty(input.shape[:2], device=input.device, dtype=input.dtype)
+        var = torch.empty(input.shape[:2], device=input.device, dtype=input.dtype)
 
     output = torch.empty_like(input)
 
@@ -47,35 +35,37 @@ def instance_norm(
         ntops.kernels.instance_norm.premake,
         input.ndim,
         use_input_stats,
-        tracking_running_stats,
         num_normalized_elements,
-        block_size=32,
+        dtype=input.dtype,
     )
 
     if use_input_stats:
-        if tracking_running_stats:
-            kernel(
-                input,
-                running_mean,
-                running_var,
-                tmp_mean,
-                tmp_var,
-                weight,
-                bias,
-                momentum,
-                eps,
-                output,
-                num_normalized_elements,
+        kernel(
+            input,
+            mean,
+            var,
+            weight,
+            bias,
+            eps,
+            output,
+            num_normalized_elements,
+        )
+
+        # We reduce in PyTorch instead of using tl.atomic_add in Triton because:
+        # 1. Triton blocks cannot synchronize to safely apply the momentum update after all additions finish.
+        # 2. N blocks atomically adding to the same C addresses creates severe memory contention.
+        if has_running_stats:
+            batch_mean = mean.mean(0)
+            avg_vars = var.mean(0)
+
+            unbiased_var = (
+                (avg_vars) * num_normalized_elements / (num_normalized_elements - 1)
+                if num_normalized_elements > 1
+                else avg_vars
             )
-        else:
-            kernel(
-                input,
-                weight,
-                bias,
-                eps,
-                output,
-                num_normalized_elements,
-            )
+
+            running_mean.mul_(1 - momentum).add_(momentum * batch_mean)
+            running_var.mul_(1 - momentum).add_(momentum * unbiased_var)
     else:
         kernel(input, running_mean, running_var, weight, bias, eps, output)
 

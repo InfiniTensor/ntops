@@ -81,5 +81,6 @@ def test_instance_norm(
         assert torch.allclose(
             ninetoothed_running_mean, reference_running_mean, rtol=rtol, atol=atol
         )
-        # TODO: The running var is not close.
-        # assert torch.allclose(ninetoothed_running_var, reference_running_var, rtol=rtol, atol=atol)
+        assert torch.allclose(
+            ninetoothed_running_var, reference_running_var, rtol=rtol, atol=atol
+        )
