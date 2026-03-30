@@ -1,6 +1,7 @@
 from ntops.torch.abs import abs
 from ntops.torch.add import add
 from ntops.torch.addmm import addmm
+from ntops.torch.alpha_dropout import alpha_dropout
 from ntops.torch.avg_pool2d import avg_pool2d
 from ntops.torch.bitwise_and import bitwise_and
 from ntops.torch.bitwise_not import bitwise_not
@@ -46,6 +47,7 @@ __all__ = [
     "abs",
     "add",
     "addmm",
+    "alpha_dropout",
     "avg_pool2d",
     "bitwise_and",
     "bitwise_not",
