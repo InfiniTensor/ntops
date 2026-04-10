@@ -11,6 +11,7 @@ from ntops.torch.clamp import clamp
 from ntops.torch.conv2d import conv2d
 from ntops.torch.cos import cos
 from ntops.torch.cosh import cosh
+from ntops.torch.diag import diag
 from ntops.torch.div import div
 from ntops.torch.dropout import dropout
 from ntops.torch.eq import eq
@@ -40,6 +41,7 @@ from ntops.torch.sigmoid import sigmoid
 from ntops.torch.silu import silu
 from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
+from ntops.torch.sort import sort
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
 
@@ -57,6 +59,7 @@ __all__ = [
     "conv2d",
     "cos",
     "cosh",
+    "diag",
     "div",
     "dropout",
     "eq",
@@ -86,6 +89,7 @@ __all__ = [
     "silu",
     "sin",
     "softmax",
+    "sort",
     "sub",
     "tanh",
 ]

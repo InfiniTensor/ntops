@@ -12,6 +12,7 @@ from ntops.kernels import (
     conv2d,
     cos,
     cosh,
+    diag,
     div,
     dropout,
     eq,
@@ -40,6 +41,7 @@ from ntops.kernels import (
     silu,
     sin,
     softmax,
+    sort,
     sub,
     tanh,
 )
@@ -58,6 +60,7 @@ __all__ = [
     "conv2d",
     "cos",
     "cosh",
+    "diag",
     "div",
     "dropout",
     "eq",
@@ -86,6 +89,7 @@ __all__ = [
     "silu",
     "sin",
     "softmax",
+    "sort",
     "sub",
     "tanh",
 ]
