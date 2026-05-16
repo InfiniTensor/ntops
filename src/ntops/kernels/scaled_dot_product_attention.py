@@ -166,7 +166,7 @@ def application_without_kv_cache(
         query_i = (1.4426950408889634 * scale * query[i]).to(query[i].dtype)
 
         acc = ntl.zeros((query_i.shape[-2], query_i.shape[-1]), dtype=ntl.float32)
-        lse = ntl.full((query_i.shape[-2],), 1, dtype=ntl.float32)
+        lse = ntl.zeros((query_i.shape[-2],), dtype=ntl.float32)
         max = ntl.full((query_i.shape[-2],), float("-inf"), dtype=ntl.float32)
 
         for j in range(key.shape[0]):
@@ -190,15 +190,19 @@ def application_without_kv_cache(
                 qk = ntl.where(mask, qk, float("-inf"))
 
             next_max = ntl.maximum(max, ntl.max(qk, 1))
-            stable_qk = ntl.exp2(qk - next_max[:, None])
+            safe_next_max = ntl.where(
+                next_max == float("-inf"), 0.0, next_max
+            )
+            stable_qk = ntl.exp2(qk - safe_next_max[:, None])
 
-            alpha = ntl.exp2(max - next_max)
+            alpha = ntl.where(
+                max == float("-inf"), 0.0, ntl.exp2(max - safe_next_max)
+            )
             acc = acc * alpha[:, None] + ntl.dot(stable_qk.to(value[i].dtype), value[j])
             max = next_max
             lse = lse * alpha + ntl.sum(stable_qk, 1)
 
-        acc /= lse[:, None]
-        output[i] = acc  # noqa: F841
+        output[i] = ntl.where(lse[:, None] == 0.0, 0.0, acc / lse[:, None])  # noqa: F841
 
 
 def premake(
