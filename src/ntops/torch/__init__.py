@@ -8,6 +8,7 @@ from ntops.torch.bitwise_or import bitwise_or
 from ntops.torch.bmm import bmm
 from ntops.torch.clamp import clamp
 from ntops.torch.conv2d import conv2d
+from ntops.torch.copysign import copysign
 from ntops.torch.cos import cos
 from ntops.torch.div import div
 from ntops.torch.dropout import dropout
@@ -19,7 +20,9 @@ from ntops.torch.gt import gt
 from ntops.torch.isinf import isinf
 from ntops.torch.isnan import isnan
 from ntops.torch.layer_norm import layer_norm
+from ntops.torch.lcm import lcm
 from ntops.torch.le import le
+from ntops.torch.lgamma import lgamma
 from ntops.torch.lt import lt
 from ntops.torch.matmul import matmul
 from ntops.torch.max_pool2d import max_pool2d
@@ -27,7 +30,9 @@ from ntops.torch.mm import mm
 from ntops.torch.mul import mul
 from ntops.torch.ne import ne
 from ntops.torch.neg import neg
+from ntops.torch.nextafter import nextafter
 from ntops.torch.pow import pow
+from ntops.torch.rad2deg import rad2deg
 from ntops.torch.relu import relu
 from ntops.torch.rms_norm import rms_norm
 from ntops.torch.rotary_position_embedding import rotary_position_embedding
@@ -51,6 +56,7 @@ __all__ = [
     "bmm",
     "clamp",
     "conv2d",
+    "copysign",
     "cos",
     "div",
     "dropout",
@@ -62,7 +68,9 @@ __all__ = [
     "isinf",
     "isnan",
     "layer_norm",
+    "lcm",
     "le",
+    "lgamma",
     "lt",
     "matmul",
     "max_pool2d",
@@ -70,7 +78,9 @@ __all__ = [
     "mul",
     "ne",
     "neg",
+    "nextafter",
     "pow",
+    "rad2deg",
     "relu",
     "rms_norm",
     "rotary_position_embedding",
