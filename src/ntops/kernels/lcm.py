@@ -52,9 +52,7 @@ from ntops.kernels.element_wise import arrangement
 #           dtypes unchanged.
 def application_8(input, other, output):
     dtype = output.dtype
-    compute_dtype = (
-        ntl.int32 if dtype == ntl.int8 or dtype == ntl.int16 else dtype
-    )
+    compute_dtype = ntl.int32
     abs_a = ntl.abs(ntl.cast(input, compute_dtype))
     abs_b = ntl.abs(ntl.cast(other, compute_dtype))
     or_ab = abs_a | abs_b
@@ -84,9 +82,7 @@ def application_8(input, other, output):
 
 def application_16(input, other, output):
     dtype = output.dtype
-    compute_dtype = (
-        ntl.int32 if dtype == ntl.int8 or dtype == ntl.int16 else dtype
-    )
+    compute_dtype = ntl.int32
     abs_a = ntl.abs(ntl.cast(input, compute_dtype))
     abs_b = ntl.abs(ntl.cast(other, compute_dtype))
     or_ab = abs_a | abs_b
@@ -116,9 +112,7 @@ def application_16(input, other, output):
 
 def application_36(input, other, output):
     dtype = output.dtype
-    compute_dtype = (
-        ntl.int32 if dtype == ntl.int8 or dtype == ntl.int16 else dtype
-    )
+    compute_dtype = ntl.int32
     abs_a = ntl.abs(ntl.cast(input, compute_dtype))
     abs_b = ntl.abs(ntl.cast(other, compute_dtype))
     or_ab = abs_a | abs_b
