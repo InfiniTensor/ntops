@@ -128,6 +128,9 @@ def nextafter(input, other, *, out=None):
         double = input.dtype == torch.float64
         iluvatar = _use_iluvatar_device(input)
         out = torch.empty((rows, cols), dtype=input.dtype, device=input.device)
+        if half and iluvatar:
+            _iluvatar_triton.nextafter_f16_broadcast(input, other, out)
+            return out
         if input.dtype == torch.float32 and iluvatar:
             _iluvatar_triton.nextafter_f32_broadcast(input, other, out)
             return out
@@ -142,12 +145,24 @@ def nextafter(input, other, *, out=None):
     input, other, result_dtype = _prepare_inputs(input, other)
     out = _prepare_out(out, input.shape, result_dtype, input.device, like=input)
 
-    kernel_input, kernel_other, kernel_out = _flatten_kernel_tensors(input, other, out)
     half = hasattr(torch, "float16") and input.dtype == torch.float16
     double = hasattr(torch, "float64") and input.dtype == torch.float64
     iluvatar = _use_iluvatar_device(input)
-    if half and iluvatar and kernel_input.ndim == 1 and kernel_input.is_contiguous():
+
+    kernel_input, kernel_other, kernel_out = _flatten_kernel_tensors(input, other, out)
+    if (
+        half
+        and iluvatar
+        and kernel_input.ndim == 1
+        and kernel_input.is_contiguous()
+        and kernel_other.ndim == 1
+        and kernel_other.is_contiguous()
+        and kernel_out.ndim == 1
+        and kernel_out.is_contiguous()
+    ):
         _iluvatar_triton.nextafter_f16_1d(kernel_input, kernel_other, kernel_out)
+        return out
+    if half and iluvatar and _iluvatar_triton.nextafter_f16_strided(input, other, out):
         return out
     kernel = _cached_make(
         ntops.kernels.nextafter.premake,

@@ -112,6 +112,38 @@ def _nextafter_f32_broadcast_kernel(
 
 
 @triton.jit
+def _nextafter_f16_broadcast_kernel(
+    input,
+    other,
+    output,
+    cols: tl.constexpr,
+    n: tl.constexpr,
+    block: tl.constexpr,
+):
+    pid = tl.program_id(0)
+    offsets = pid * block + tl.arange(0, block)
+    mask = offsets < n
+    row = offsets // cols
+    col = offsets - row * cols
+    input_value = tl.load(input + row, mask=mask, other=0.0)
+    other_value = tl.load(other + col, mask=mask, other=0.0)
+
+    bits = input_value.to(tl.uint16, bitcast=True)
+    increment = tl.where(input_value > 0, other_value > input_value, other_value < input_value)
+    next_bits = tl.where(increment, bits + 1, bits - 1).to(tl.uint16)
+    value = next_bits.to(tl.float16, bitcast=True)
+
+    zero_value = tl.where(other_value < 0, -5.960464477539063e-08, 5.960464477539063e-08)
+    zero_value = zero_value.to(tl.float16)
+    zero_value = tl.where(other_value == 0, other_value, zero_value)
+    value = tl.where(input_value == 0, zero_value, value)
+    value = tl.where(input_value == other_value, other_value, value)
+    value = tl.where(input_value != input_value, input_value, value)
+    value = tl.where(other_value != other_value, other_value, value)
+    tl.store(output + offsets, value, mask=mask)
+
+
+@triton.jit
 def _nextafter_f16_kernel(input, other, output, n: tl.constexpr, block: tl.constexpr):
     pid = tl.program_id(0)
     offsets = pid * block + tl.arange(0, block)
@@ -132,6 +164,97 @@ def _nextafter_f16_kernel(input, other, output, n: tl.constexpr, block: tl.const
     value = tl.where(input_value != input_value, input_value, value)
     value = tl.where(other_value != other_value, other_value, value)
     tl.store(output + offsets, value, mask=mask)
+
+
+@triton.jit
+def _nextafter_f16_strided_kernel(
+    input,
+    other,
+    output,
+    n: tl.constexpr,
+    d0: tl.constexpr,
+    d1: tl.constexpr,
+    d2: tl.constexpr,
+    d3: tl.constexpr,
+    d4: tl.constexpr,
+    d5: tl.constexpr,
+    input_s0: tl.constexpr,
+    input_s1: tl.constexpr,
+    input_s2: tl.constexpr,
+    input_s3: tl.constexpr,
+    input_s4: tl.constexpr,
+    input_s5: tl.constexpr,
+    other_s0: tl.constexpr,
+    other_s1: tl.constexpr,
+    other_s2: tl.constexpr,
+    other_s3: tl.constexpr,
+    other_s4: tl.constexpr,
+    other_s5: tl.constexpr,
+    output_s0: tl.constexpr,
+    output_s1: tl.constexpr,
+    output_s2: tl.constexpr,
+    output_s3: tl.constexpr,
+    output_s4: tl.constexpr,
+    output_s5: tl.constexpr,
+    block: tl.constexpr,
+):
+    pid = tl.program_id(0)
+    offsets = pid * block + tl.arange(0, block)
+    mask = offsets < n
+
+    rem = offsets
+    i5 = rem % d5
+    rem = rem // d5
+    i4 = rem % d4
+    rem = rem // d4
+    i3 = rem % d3
+    rem = rem // d3
+    i2 = rem % d2
+    rem = rem // d2
+    i1 = rem % d1
+    i0 = rem // d1
+
+    input_offsets = (
+        i0 * input_s0
+        + i1 * input_s1
+        + i2 * input_s2
+        + i3 * input_s3
+        + i4 * input_s4
+        + i5 * input_s5
+    )
+    other_offsets = (
+        i0 * other_s0
+        + i1 * other_s1
+        + i2 * other_s2
+        + i3 * other_s3
+        + i4 * other_s4
+        + i5 * other_s5
+    )
+    output_offsets = (
+        i0 * output_s0
+        + i1 * output_s1
+        + i2 * output_s2
+        + i3 * output_s3
+        + i4 * output_s4
+        + i5 * output_s5
+    )
+
+    input_value = tl.load(input + input_offsets, mask=mask, other=0.0)
+    other_value = tl.load(other + other_offsets, mask=mask, other=0.0)
+
+    bits = input_value.to(tl.uint16, bitcast=True)
+    increment = tl.where(input_value > 0, other_value > input_value, other_value < input_value)
+    next_bits = tl.where(increment, bits + 1, bits - 1).to(tl.uint16)
+    value = next_bits.to(tl.float16, bitcast=True)
+
+    zero_value = tl.where(other_value < 0, -5.960464477539063e-08, 5.960464477539063e-08)
+    zero_value = zero_value.to(tl.float16)
+    zero_value = tl.where(other_value == 0, other_value, zero_value)
+    value = tl.where(input_value == 0, zero_value, value)
+    value = tl.where(input_value == other_value, other_value, value)
+    value = tl.where(input_value != input_value, input_value, value)
+    value = tl.where(other_value != other_value, other_value, value)
+    tl.store(output + output_offsets, value, mask=mask)
 
 
 @triton.jit
@@ -494,6 +617,23 @@ def nextafter_f32_broadcast(input, other, output):
     )
 
 
+def nextafter_f16_broadcast(input, other, output):
+    rows = input.shape[0]
+    cols = other.shape[1]
+    n = rows * cols
+    block = 256
+    grid = (triton.cdiv(n, block),)
+    _nextafter_f16_broadcast_kernel[grid](
+        input,
+        other,
+        output,
+        cols,
+        n,
+        block=block,
+        num_warps=4,
+    )
+
+
 def nextafter_f16_1d(input, other, output):
     n = input.numel()
     block = 512
@@ -506,6 +646,37 @@ def nextafter_f16_1d(input, other, output):
         block=block,
         num_warps=4,
     )
+
+
+def _shape_and_strides_6d(tensor):
+    shape = tuple(tensor.shape)
+    strides = tuple(tensor.stride())
+    pad = 6 - len(shape)
+    return (1,) * pad + shape, (0,) * pad + strides
+
+
+def nextafter_f16_strided(input, other, output):
+    if input.ndim > 6:
+        return False
+    n = output.numel()
+    block = 512
+    grid = (triton.cdiv(n, block),)
+    shape, input_strides = _shape_and_strides_6d(input)
+    _, other_strides = _shape_and_strides_6d(other)
+    _, output_strides = _shape_and_strides_6d(output)
+    _nextafter_f16_strided_kernel[grid](
+        input,
+        other,
+        output,
+        n,
+        *shape,
+        *input_strides,
+        *other_strides,
+        *output_strides,
+        block=block,
+        num_warps=4,
+    )
+    return True
 
 
 def lcm_1d(input, other, output, max_iterations, absolute_output):
