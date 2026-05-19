@@ -3,7 +3,31 @@ import functools
 import torch
 
 import ntops
+from ntops.torch import _iluvatar_triton
 from ntops.torch.utils import _cached_make, _flatten_kernel_tensors, _prepare_out
+
+
+@functools.cache
+def _is_iluvatar_device(index):
+    if not hasattr(torch, "cuda"):
+        return False
+    if not torch.cuda.is_available():
+        return False
+    try:
+        return "Iluvatar" in torch.cuda.get_device_name(index)
+    except Exception:
+        return False
+
+
+def _use_iluvatar_device(tensor):
+    if tensor.device.type != "cuda":
+        return False
+    if not hasattr(torch, "cuda"):
+        return False
+    index = tensor.device.index
+    if index is None:
+        index = torch.cuda.current_device()
+    return _is_iluvatar_device(index)
 
 
 def _broadcast(input, other):
@@ -93,9 +117,33 @@ def lcm(input, other, *, out=None):
     ):
         if out is None:
             out = torch.empty_like(input)
+            if _iluvatar_triton.is_iluvatar_device(input):
+                if input.dtype == torch.uint8:
+                    _iluvatar_triton.lcm_u8_1d(input, other, out)
+                else:
+                    _iluvatar_triton.lcm_1d(
+                        input,
+                        other,
+                        out,
+                        _iterations_for_dtype(input.dtype),
+                        _uses_absolute_overflow(input.dtype),
+                    )
+                return out
             _get_kernel_1d(input.dtype)(input, other, out)
             return out
         if tuple(out.shape) == tuple(input.shape) and out.dtype == input.dtype and out.is_contiguous():
+            if _iluvatar_triton.is_iluvatar_device(input):
+                if input.dtype == torch.uint8:
+                    _iluvatar_triton.lcm_u8_1d(input, other, out)
+                else:
+                    _iluvatar_triton.lcm_1d(
+                        input,
+                        other,
+                        out,
+                        _iterations_for_dtype(input.dtype),
+                        _uses_absolute_overflow(input.dtype),
+                    )
+                return out
             _get_kernel_1d(input.dtype)(input, other, out)
             return out
 
@@ -114,6 +162,15 @@ def lcm(input, other, *, out=None):
         rows = input.shape[0]
         cols = other.shape[1]
         out = torch.empty((rows, cols), dtype=input.dtype, device=input.device)
+        if _iluvatar_triton.is_iluvatar_device(input):
+            _iluvatar_triton.lcm_broadcast(
+                input,
+                other,
+                out,
+                _iterations_for_dtype(input.dtype),
+                _uses_absolute_overflow(input.dtype),
+            )
+            return out
         _get_broadcast_2d_kernel(input.dtype)(input, other, out)
         return out
 
@@ -122,6 +179,26 @@ def lcm(input, other, *, out=None):
     out = _prepare_out(out, input.shape, result_dtype, input.device, like=input)
 
     kernel_input, kernel_other, kernel_out = _flatten_kernel_tensors(input, other, out)
+    if (
+        _iluvatar_triton.is_iluvatar_device(input)
+        and kernel_input.ndim == 1
+        and kernel_other.ndim == 1
+        and kernel_out.ndim == 1
+        and kernel_input.is_contiguous()
+        and kernel_other.is_contiguous()
+        and kernel_out.is_contiguous()
+    ):
+        if input.dtype == torch.uint8:
+            _iluvatar_triton.lcm_u8_1d(kernel_input, kernel_other, kernel_out)
+        else:
+            _iluvatar_triton.lcm_1d(
+                kernel_input,
+                kernel_other,
+                kernel_out,
+                _iterations_for_dtype(input.dtype),
+                _uses_absolute_overflow(input.dtype),
+            )
+        return out
 
     kernel = _cached_make(
         ntops.kernels.lcm.premake,

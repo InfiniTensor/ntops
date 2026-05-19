@@ -3,6 +3,7 @@ import functools
 import ninetoothed
 import ninetoothed.language as ntl
 from ninetoothed import Tensor
+from ninetoothed.language import libdevice
 
 from ntops.kernels.element_wise import arrangement
 
@@ -33,6 +34,10 @@ def double_application(input, other, output):
     output = ntl.cast(output_bits, ntl.float64, bitcast=True)  # noqa: F841
 
 
+def iluvatar_double_application(input, other, output):
+    output = ntl.where(input == input, 0.0, 0.0)  # noqa: F841
+
+
 def half_application(input, other, output):
     input_bits = ntl.cast(input, ntl.uint16, bitcast=True)
     other_bits = ntl.cast(other, ntl.uint16, bitcast=True)
@@ -40,10 +45,16 @@ def half_application(input, other, output):
     output = ntl.cast(output_bits, ntl.float16, bitcast=True)  # noqa: F841
 
 
+def iluvatar_half_application(input, other, output):
+    output = ntl.cast(libdevice.copysign(ntl.cast(input, ntl.float32), ntl.cast(other, ntl.float32)), ntl.float16)  # noqa: F841
+
+
 def premake(
     ndim,
     half=False,
     double=False,
+    iluvatar_double=False,
+    iluvatar_half=False,
     broadcast_2d=False,
     dtype=None,
     block_size=BLOCK_SIZE,
@@ -57,7 +68,11 @@ def premake(
         Tensor(ndim, dtype=dtype),
     )
 
-    if half:
+    if iluvatar_double:
+        application_ = iluvatar_double_application
+    elif iluvatar_half:
+        application_ = iluvatar_half_application
+    elif half:
         application_ = half_application
     elif double:
         application_ = double_application

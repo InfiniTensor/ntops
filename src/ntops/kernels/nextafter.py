@@ -28,6 +28,23 @@ def application(input, other, output):
     output = ntl.where(other != other, other, value)  # noqa: F841
 
 
+def iluvatar_application(input, other, output):
+    bits = ntl.cast(input, ntl.uint32, bitcast=True)
+    next_bits = ntl.where(
+        ntl.where(input > 0, other > input, other < input),
+        bits + 1,
+        bits - 1,
+    )
+    next_bits = ntl.cast(next_bits, ntl.uint32)
+    value = ntl.cast(next_bits, ntl.float32, bitcast=True)
+    zero_value = ntl.where(other < 0, -1.401298464324817e-45, 1.401298464324817e-45)
+    zero_value = ntl.where(other == 0, other, zero_value)
+    value = ntl.where(input == 0, zero_value, value)
+    value = ntl.where(input == other, other, value)
+    value = ntl.where(input != input, input, value)
+    output = ntl.where(other != other, other, value)  # noqa: F841
+
+
 def double_application(input, other, output):
     value = libdevice.nextafter(input, other)
     zero_value = ntl.where(other < 0, -4.9406564584124654e-324, 4.9406564584124654e-324)
@@ -52,7 +69,15 @@ def half_application(input, other, output):
     output = ntl.where(other != other, other, value)  # noqa: F841
 
 
-def premake(ndim, half=False, double=False, broadcast_2d=False, dtype=None, block_size=BLOCK_SIZE):
+def premake(
+    ndim,
+    half=False,
+    double=False,
+    broadcast_2d=False,
+    dtype=None,
+    block_size=BLOCK_SIZE,
+    iluvatar=False,
+):
     arrangement_func = broadcast_2d_arrangement if broadcast_2d else arrangement
     arrangement_ = functools.partial(arrangement_func, block_size=block_size)
 
@@ -66,6 +91,8 @@ def premake(ndim, half=False, double=False, broadcast_2d=False, dtype=None, bloc
         application_ = half_application
     elif double:
         application_ = double_application
+    elif iluvatar:
+        application_ = iluvatar_application
     else:
         application_ = application
 

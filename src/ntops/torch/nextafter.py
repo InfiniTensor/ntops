@@ -3,7 +3,31 @@ import functools
 import torch
 
 import ntops
+from ntops.torch import _iluvatar_triton
 from ntops.torch.utils import _cached_make, _flatten_kernel_tensors, _prepare_out
+
+
+@functools.cache
+def _is_iluvatar_device(index):
+    if not hasattr(torch, "cuda"):
+        return False
+    if not torch.cuda.is_available():
+        return False
+    try:
+        return "Iluvatar" in torch.cuda.get_device_name(index)
+    except Exception:
+        return False
+
+
+def _use_iluvatar_device(tensor):
+    if tensor.device.type != "cuda":
+        return False
+    if not hasattr(torch, "cuda"):
+        return False
+    index = tensor.device.index
+    if index is None:
+        index = torch.cuda.current_device()
+    return _is_iluvatar_device(index)
 
 
 def _broadcast(input, other):
@@ -23,29 +47,39 @@ def _prepare_inputs(input, other):
     return input.to(result_dtype), other.to(result_dtype), result_dtype
 
 
+def _kernel_config(half, double, iluvatar):
+    if iluvatar and not half and not double:
+        return 256, 4
+    return ntops.kernels.nextafter.BLOCK_SIZE, 1
+
+
 @functools.cache
-def _get_kernel_1d(half, double):
+def _get_kernel_1d(half, double, iluvatar=False):
+    block_size, num_warps = _kernel_config(half, double, iluvatar)
     return _cached_make(
         ntops.kernels.nextafter.premake,
         1,
         half,
         double,
-        block_size=ntops.kernels.nextafter.BLOCK_SIZE,
-        num_warps=1,
+        iluvatar=iluvatar and not half and not double,
+        block_size=block_size,
+        num_warps=num_warps,
         max_num_configs=1,
     )
 
 
 @functools.cache
-def _get_broadcast_2d_kernel(half, double):
+def _get_broadcast_2d_kernel(half, double, iluvatar=False):
+    block_size, num_warps = _kernel_config(half, double, iluvatar)
     return _cached_make(
         ntops.kernels.nextafter.premake,
         2,
         half,
         double,
         True,
-        block_size=512,
-        num_warps=1,
+        iluvatar=iluvatar and not half and not double,
+        block_size=block_size,
+        num_warps=num_warps,
         max_num_configs=1,
     )
 
@@ -62,12 +96,19 @@ def nextafter(input, other, *, out=None):
     ):
         half = input.dtype == torch.float16
         double = input.dtype == torch.float64
+        iluvatar = _use_iluvatar_device(input)
         if out is None:
             out = torch.empty_like(input)
-            _get_kernel_1d(half, double)(input, other, out)
+            if half and iluvatar:
+                _iluvatar_triton.nextafter_f16_1d(input, other, out)
+                return out
+            _get_kernel_1d(half, double, iluvatar)(input, other, out)
             return out
         if tuple(out.shape) == tuple(input.shape) and out.dtype == input.dtype and out.is_contiguous():
-            _get_kernel_1d(half, double)(input, other, out)
+            if half and iluvatar:
+                _iluvatar_triton.nextafter_f16_1d(input, other, out)
+                return out
+            _get_kernel_1d(half, double, iluvatar)(input, other, out)
             return out
 
     if (
@@ -85,8 +126,12 @@ def nextafter(input, other, *, out=None):
         cols = other.shape[1]
         half = input.dtype == torch.float16
         double = input.dtype == torch.float64
+        iluvatar = _use_iluvatar_device(input)
         out = torch.empty((rows, cols), dtype=input.dtype, device=input.device)
-        _get_broadcast_2d_kernel(half, double)(
+        if input.dtype == torch.float32 and iluvatar:
+            _iluvatar_triton.nextafter_f32_broadcast(input, other, out)
+            return out
+        _get_broadcast_2d_kernel(half, double, iluvatar)(
             input,
             other,
             out,
@@ -100,13 +145,18 @@ def nextafter(input, other, *, out=None):
     kernel_input, kernel_other, kernel_out = _flatten_kernel_tensors(input, other, out)
     half = hasattr(torch, "float16") and input.dtype == torch.float16
     double = hasattr(torch, "float64") and input.dtype == torch.float64
+    iluvatar = _use_iluvatar_device(input)
+    if half and iluvatar and kernel_input.ndim == 1 and kernel_input.is_contiguous():
+        _iluvatar_triton.nextafter_f16_1d(kernel_input, kernel_other, kernel_out)
+        return out
     kernel = _cached_make(
         ntops.kernels.nextafter.premake,
         kernel_input.ndim,
         half,
         double,
-        block_size=ntops.kernels.nextafter.BLOCK_SIZE,
-        num_warps=1,
+        iluvatar=iluvatar and not half and not double,
+        block_size=_kernel_config(half, double, iluvatar)[0],
+        num_warps=_kernel_config(half, double, iluvatar)[1],
         max_num_configs=1,
     )
     kernel(kernel_input, kernel_other, kernel_out)

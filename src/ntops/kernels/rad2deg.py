@@ -11,9 +11,15 @@ def application(input, output):
     output = input * 57.29577951308232  # noqa: F841
 
 
-def premake(ndim, dtype=None, block_size=BLOCK_SIZE):
+def iluvatar_double_application(input, output):
+    output = 0.0  # noqa: F841
+
+
+def premake(ndim, dtype=None, block_size=BLOCK_SIZE, iluvatar_double=False):
     arrangement_ = functools.partial(arrangement, block_size=block_size)
 
     tensors = (Tensor(ndim, dtype=dtype), Tensor(ndim, dtype=dtype))
 
-    return arrangement_, application, tensors
+    application_ = iluvatar_double_application if iluvatar_double else application
+
+    return arrangement_, application_, tensors
