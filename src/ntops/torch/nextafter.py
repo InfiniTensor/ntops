@@ -76,15 +76,17 @@ def _metax_fast_flatten(input, other, out):
     return None
 
 
-def _kernel_config(half, double, metax=False):
+def _kernel_config(half, double, iluvatar=False, metax=False):
     if metax and not half and not double:
         return 1024, 8
+    if iluvatar and not half and not double:
+        return 256, 4
     return ntops.kernels.nextafter.BLOCK_SIZE, 1
 
 
 @functools.cache
 def _get_kernel_1d(half, double, iluvatar=False, metax=False):
-    block_size, num_warps = _kernel_config(half, double, metax)
+    block_size, num_warps = _kernel_config(half, double, iluvatar, metax)
     return _cached_make(
         ntops.kernels.nextafter.premake,
         1,
@@ -99,7 +101,7 @@ def _get_kernel_1d(half, double, iluvatar=False, metax=False):
 
 @functools.cache
 def _get_broadcast_2d_kernel(half, double, iluvatar=False, metax=False):
-    block_size, num_warps = _kernel_config(half, double, metax)
+    block_size, num_warps = _kernel_config(half, double, iluvatar, metax)
     return _cached_make(
         ntops.kernels.nextafter.premake,
         2,
@@ -244,8 +246,8 @@ def nextafter(input, other, *, out=None):
         half,
         double,
         bitwise_f32=(iluvatar or metax) and not half and not double,
-        block_size=_kernel_config(half, double, metax)[0],
-        num_warps=_kernel_config(half, double, metax)[1],
+        block_size=_kernel_config(half, double, iluvatar, metax)[0],
+        num_warps=_kernel_config(half, double, iluvatar, metax)[1],
         max_num_configs=1,
     )
     kernel(kernel_input, kernel_other, kernel_out)
