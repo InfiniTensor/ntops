@@ -3,7 +3,7 @@ import functools
 import torch
 
 import ntops
-from ntops.torch import _iluvatar_triton
+from ntops.torch import _vendor_triton
 from ntops.torch.utils import _cached_make, _flatten_kernel_tensors, _prepare_out
 
 
@@ -59,6 +59,21 @@ def _promote_unary_input(input):
     return input
 
 
+def _metax_fast_flatten(input, out):
+    if input.ndim == 0:
+        return input.reshape((1,)), out.reshape((1,))
+    if input.is_contiguous() and out.is_contiguous():
+        return input.reshape((input.numel(),)), out.reshape((out.numel(),))
+    if input.ndim <= 1 or tuple(input.shape) != tuple(out.shape):
+        return None
+    dims = tuple(sorted(range(input.ndim), key=lambda dim: input.stride()[dim], reverse=True))
+    input_view = input.permute(dims)
+    out_view = out.permute(dims)
+    if input_view.is_contiguous() and out_view.is_contiguous():
+        return input_view.reshape((input.numel(),)), out_view.reshape((out.numel(),))
+    return None
+
+
 def rad2deg(input, *, out=None):
     input = _promote_unary_input(input)
 
@@ -66,30 +81,47 @@ def rad2deg(input, *, out=None):
         iluvatar_double = _use_iluvatar_double_kernel(input)
         if out is None:
             out = torch.empty_like(input)
-            if input.dtype == torch.float32 and _iluvatar_triton.is_iluvatar_device(input):
-                _iluvatar_triton.rad2deg_f32_1d(input, out)
+            if input.dtype == torch.float32 and _vendor_triton.is_corex_or_metax_device(input):
+                _vendor_triton.rad2deg_f32_1d(input, out)
                 return out
             _get_kernel_1d(iluvatar_double)(input, out)
             return out
         if tuple(out.shape) == tuple(input.shape) and out.dtype == input.dtype and out.is_contiguous():
-            if input.dtype == torch.float32 and _iluvatar_triton.is_iluvatar_device(input):
-                _iluvatar_triton.rad2deg_f32_1d(input, out)
+            if input.dtype == torch.float32 and _vendor_triton.is_corex_or_metax_device(input):
+                _vendor_triton.rad2deg_f32_1d(input, out)
                 return out
             _get_kernel_1d(iluvatar_double)(input, out)
             return out
 
     out = _prepare_out(out, input.shape, input.dtype, input.device, like=input)
 
+    if _vendor_triton.is_metax_device(input):
+        fast_tensors = _metax_fast_flatten(input, out)
+        if fast_tensors is not None:
+            kernel_input, kernel_out = fast_tensors
+            _vendor_triton.rad2deg_1d(kernel_input, kernel_out)
+            return out
+
     kernel_input, kernel_out = _flatten_kernel_tensors(input, out)
     if (
-        input.dtype == torch.float32
-        and _iluvatar_triton.is_iluvatar_device(input)
+        _vendor_triton.is_metax_device(input)
+        and not input.is_contiguous()
         and kernel_input.ndim == 1
         and kernel_out.ndim == 1
         and kernel_input.is_contiguous()
         and kernel_out.is_contiguous()
     ):
-        _iluvatar_triton.rad2deg_f32_1d(kernel_input, kernel_out)
+        _vendor_triton.rad2deg_1d(kernel_input, kernel_out)
+        return out
+    if (
+        input.dtype == torch.float32
+        and _vendor_triton.is_corex_or_metax_device(input)
+        and kernel_input.ndim == 1
+        and kernel_out.ndim == 1
+        and kernel_input.is_contiguous()
+        and kernel_out.is_contiguous()
+    ):
+        _vendor_triton.rad2deg_f32_1d(kernel_input, kernel_out)
         return out
     kernel = _cached_make(
         ntops.kernels.rad2deg.premake,

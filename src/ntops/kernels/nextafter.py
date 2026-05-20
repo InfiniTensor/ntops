@@ -28,7 +28,7 @@ def application(input, other, output):
     output = ntl.where(other != other, other, value)  # noqa: F841
 
 
-def iluvatar_application(input, other, output):
+def bitwise_f32_application(input, other, output):
     bits = ntl.cast(input, ntl.uint32, bitcast=True)
     next_bits = ntl.where(
         ntl.where(input > 0, other > input, other < input),
@@ -76,7 +76,7 @@ def premake(
     broadcast_2d=False,
     dtype=None,
     block_size=BLOCK_SIZE,
-    iluvatar=False,
+    bitwise_f32=False,
 ):
     arrangement_func = broadcast_2d_arrangement if broadcast_2d else arrangement
     arrangement_ = functools.partial(arrangement_func, block_size=block_size)
@@ -91,8 +91,8 @@ def premake(
         application_ = half_application
     elif double:
         application_ = double_application
-    elif iluvatar:
-        application_ = iluvatar_application
+    elif bitwise_f32:
+        application_ = bitwise_f32_application
     else:
         application_ = application
 

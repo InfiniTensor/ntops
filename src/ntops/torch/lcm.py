@@ -3,7 +3,7 @@ import functools
 import torch
 
 import ntops
-from ntops.torch import _iluvatar_triton
+from ntops.torch import _vendor_triton
 from ntops.torch.utils import _cached_make, _flatten_kernel_tensors, _prepare_out
 
 
@@ -45,6 +45,11 @@ def _prepare_inputs(input, other):
         raise NotImplementedError(f"lcm is not implemented for {result_dtype}")
 
     return input.to(result_dtype), other.to(result_dtype), result_dtype
+
+
+def _dtype_is_floating_point(dtype):
+    is_floating_point = getattr(dtype, "is_floating_point", None)
+    return bool(is_floating_point)
 
 
 def _iterations_for_dtype(dtype):
@@ -106,22 +111,27 @@ def _get_broadcast_2d_kernel(dtype):
 
 def lcm(input, other, *, out=None):
     if (
-        input.ndim == 1
-        and other.ndim == 1
+        isinstance(input, torch.Tensor)
+        and isinstance(other, torch.Tensor)
+        and callable(getattr(input, "reshape", None))
+        and callable(getattr(other, "reshape", None))
+        and
+        input.ndim >= 1
+        and other.ndim >= 1
         and tuple(input.shape) == tuple(other.shape)
         and input.dtype == other.dtype
-        and not input.dtype.is_floating_point
+        and not _dtype_is_floating_point(input.dtype)
         and input.dtype != torch.bool
         and input.is_contiguous()
         and other.is_contiguous()
     ):
         if out is None:
             out = torch.empty_like(input)
-            if _iluvatar_triton.is_iluvatar_device(input):
+            if _vendor_triton.is_corex_or_metax_device(input):
                 if input.dtype == torch.uint8:
-                    _iluvatar_triton.lcm_u8_1d(input, other, out)
+                    _vendor_triton.lcm_u8_1d(input, other, out)
                 else:
-                    _iluvatar_triton.lcm_1d(
+                    _vendor_triton.lcm_1d(
                         input,
                         other,
                         out,
@@ -129,14 +139,17 @@ def lcm(input, other, *, out=None):
                         _uses_absolute_overflow(input.dtype),
                     )
                 return out
-            _get_kernel_1d(input.dtype)(input, other, out)
+            kernel_input = input.reshape((input.numel(),))
+            kernel_other = other.reshape((other.numel(),))
+            kernel_out = out.reshape((out.numel(),))
+            _get_kernel_1d(input.dtype)(kernel_input, kernel_other, kernel_out)
             return out
         if tuple(out.shape) == tuple(input.shape) and out.dtype == input.dtype and out.is_contiguous():
-            if _iluvatar_triton.is_iluvatar_device(input):
+            if _vendor_triton.is_corex_or_metax_device(input):
                 if input.dtype == torch.uint8:
-                    _iluvatar_triton.lcm_u8_1d(input, other, out)
+                    _vendor_triton.lcm_u8_1d(input, other, out)
                 else:
-                    _iluvatar_triton.lcm_1d(
+                    _vendor_triton.lcm_1d(
                         input,
                         other,
                         out,
@@ -144,7 +157,10 @@ def lcm(input, other, *, out=None):
                         _uses_absolute_overflow(input.dtype),
                     )
                 return out
-            _get_kernel_1d(input.dtype)(input, other, out)
+            kernel_input = input.reshape((input.numel(),))
+            kernel_other = other.reshape((other.numel(),))
+            kernel_out = out.reshape((out.numel(),))
+            _get_kernel_1d(input.dtype)(kernel_input, kernel_other, kernel_out)
             return out
 
     if (
@@ -154,7 +170,7 @@ def lcm(input, other, *, out=None):
         and input.shape[1] == 1
         and other.shape[0] == 1
         and input.dtype == other.dtype
-        and not input.dtype.is_floating_point
+        and not _dtype_is_floating_point(input.dtype)
         and input.dtype != torch.bool
         and input.is_contiguous()
         and other.is_contiguous()
@@ -162,8 +178,8 @@ def lcm(input, other, *, out=None):
         rows = input.shape[0]
         cols = other.shape[1]
         out = torch.empty((rows, cols), dtype=input.dtype, device=input.device)
-        if _iluvatar_triton.is_iluvatar_device(input):
-            _iluvatar_triton.lcm_broadcast(
+        if _vendor_triton.is_corex_or_metax_device(input):
+            _vendor_triton.lcm_broadcast(
                 input,
                 other,
                 out,
@@ -180,7 +196,7 @@ def lcm(input, other, *, out=None):
 
     kernel_input, kernel_other, kernel_out = _flatten_kernel_tensors(input, other, out)
     if (
-        _iluvatar_triton.is_iluvatar_device(input)
+        _vendor_triton.is_corex_or_metax_device(input)
         and kernel_input.ndim == 1
         and kernel_other.ndim == 1
         and kernel_out.ndim == 1
@@ -189,9 +205,9 @@ def lcm(input, other, *, out=None):
         and kernel_out.is_contiguous()
     ):
         if input.dtype == torch.uint8:
-            _iluvatar_triton.lcm_u8_1d(kernel_input, kernel_other, kernel_out)
+            _vendor_triton.lcm_u8_1d(kernel_input, kernel_other, kernel_out)
         else:
-            _iluvatar_triton.lcm_1d(
+            _vendor_triton.lcm_1d(
                 kernel_input,
                 kernel_other,
                 kernel_out,

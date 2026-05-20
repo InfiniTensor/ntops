@@ -3,7 +3,7 @@ import functools
 import torch
 
 import ntops
-from ntops.torch import _iluvatar_triton
+from ntops.torch import _vendor_triton
 from ntops.torch.utils import _cached_make, _flatten_kernel_tensors, _prepare_out
 
 
@@ -57,6 +57,30 @@ def _prepare_inputs(input, other):
     return input.to(result_dtype), other.to(result_dtype), result_dtype
 
 
+def _metax_fast_flatten(input, other, out):
+    if input.ndim == 0:
+        return input.reshape((1,)), other.reshape((1,)), out.reshape((1,))
+    if input.is_contiguous() and other.is_contiguous() and out.is_contiguous():
+        return (
+            input.reshape((input.numel(),)),
+            other.reshape((other.numel(),)),
+            out.reshape((out.numel(),)),
+        )
+    if input.ndim <= 1 or tuple(input.shape) != tuple(other.shape) or tuple(input.shape) != tuple(out.shape):
+        return None
+    dims = tuple(sorted(range(input.ndim), key=lambda dim: input.stride()[dim], reverse=True))
+    input_view = input.permute(dims)
+    other_view = other.permute(dims)
+    out_view = out.permute(dims)
+    if input_view.is_contiguous() and other_view.is_contiguous() and out_view.is_contiguous():
+        return (
+            input_view.reshape((input.numel(),)),
+            other_view.reshape((other.numel(),)),
+            out_view.reshape((out.numel(),)),
+        )
+    return None
+
+
 @functools.cache
 def _get_kernel_1d(half, double, iluvatar_double=False, iluvatar_half=False):
     return _cached_make(
@@ -104,9 +128,27 @@ def copysign(input, other, *, out=None):
         iluvatar_half = half and _use_iluvatar_device(input)
         if out is None:
             out = torch.empty_like(input)
+            if input.dtype == torch.float16 and _vendor_triton.is_metax_device(input):
+                _vendor_triton.copysign_f16_1d(input, other, out)
+                return out
+            if input.dtype == torch.float64 and _vendor_triton.is_metax_device(input):
+                _vendor_triton.copysign_f64_1d(input, other, out)
+                return out
+            if input.dtype == torch.float32 and _vendor_triton.is_corex_or_metax_device(input):
+                _vendor_triton.copysign_f32_1d(input, other, out)
+                return out
             _get_kernel_1d(half, double, iluvatar_double, iluvatar_half)(input, other, out)
             return out
         if tuple(out.shape) == tuple(input.shape) and out.dtype == input.dtype and out.is_contiguous():
+            if input.dtype == torch.float16 and _vendor_triton.is_metax_device(input):
+                _vendor_triton.copysign_f16_1d(input, other, out)
+                return out
+            if input.dtype == torch.float64 and _vendor_triton.is_metax_device(input):
+                _vendor_triton.copysign_f64_1d(input, other, out)
+                return out
+            if input.dtype == torch.float32 and _vendor_triton.is_corex_or_metax_device(input):
+                _vendor_triton.copysign_f32_1d(input, other, out)
+                return out
             _get_kernel_1d(half, double, iluvatar_double, iluvatar_half)(input, other, out)
             return out
 
@@ -128,8 +170,8 @@ def copysign(input, other, *, out=None):
         iluvatar_double = _use_iluvatar_double_kernel(input)
         iluvatar_half = half and _use_iluvatar_device(input)
         out = torch.empty((rows, cols), dtype=input.dtype, device=input.device)
-        if input.dtype == torch.float32 and _iluvatar_triton.is_iluvatar_device(input):
-            _iluvatar_triton.copysign_f32_broadcast(input, other, out)
+        if input.dtype == torch.float32 and _vendor_triton.is_corex_or_metax_device(input):
+            _vendor_triton.copysign_f32_broadcast(input, other, out)
             return out
         _get_broadcast_2d_kernel(half, double, iluvatar_double, iluvatar_half)(
             input,
@@ -142,7 +184,57 @@ def copysign(input, other, *, out=None):
     input, other, result_dtype = _prepare_inputs(input, other)
     out = _prepare_out(out, input.shape, result_dtype, input.device, like=input)
 
+    if _vendor_triton.is_metax_device(input) and input.dtype.is_floating_point:
+        fast_tensors = _metax_fast_flatten(input, other, out)
+        if fast_tensors is not None:
+            kernel_input, kernel_other, kernel_out = fast_tensors
+            if input.dtype == torch.float16:
+                _vendor_triton.copysign_f16_1d(kernel_input, kernel_other, kernel_out)
+                return out
+            if input.dtype == torch.float64:
+                _vendor_triton.copysign_f64_1d(kernel_input, kernel_other, kernel_out)
+                return out
+            if input.dtype == torch.float32:
+                _vendor_triton.copysign_f32_1d(kernel_input, kernel_other, kernel_out)
+                return out
+
     kernel_input, kernel_other, kernel_out = _flatten_kernel_tensors(input, other, out)
+    if (
+        _vendor_triton.is_metax_device(input)
+        and input.dtype == torch.float16
+        and kernel_input.ndim == 1
+        and kernel_input.is_contiguous()
+        and kernel_other.ndim == 1
+        and kernel_other.is_contiguous()
+        and kernel_out.ndim == 1
+        and kernel_out.is_contiguous()
+    ):
+        _vendor_triton.copysign_f16_1d(kernel_input, kernel_other, kernel_out)
+        return out
+    if (
+        _vendor_triton.is_metax_device(input)
+        and input.dtype == torch.float64
+        and kernel_input.ndim == 1
+        and kernel_input.is_contiguous()
+        and kernel_other.ndim == 1
+        and kernel_other.is_contiguous()
+        and kernel_out.ndim == 1
+        and kernel_out.is_contiguous()
+    ):
+        _vendor_triton.copysign_f64_1d(kernel_input, kernel_other, kernel_out)
+        return out
+    if (
+        input.dtype == torch.float32
+        and _vendor_triton.is_corex_or_metax_device(input)
+        and kernel_input.ndim == 1
+        and kernel_input.is_contiguous()
+        and kernel_other.ndim == 1
+        and kernel_other.is_contiguous()
+        and kernel_out.ndim == 1
+        and kernel_out.is_contiguous()
+    ):
+        _vendor_triton.copysign_f32_1d(kernel_input, kernel_other, kernel_out)
+        return out
     kernel = _cached_make(
         ntops.kernels.copysign.premake,
         kernel_input.ndim,

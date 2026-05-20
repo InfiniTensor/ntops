@@ -6,18 +6,36 @@ import triton
 import triton.language as tl
 
 
-def is_iluvatar_device(tensor):
+@functools.cache
+def _device_name_for_index(index):
+    try:
+        return torch.cuda.get_device_name(index)
+    except Exception:
+        return ""
+
+
+def _device_name(tensor):
     if not isinstance(tensor, torch.Tensor):
-        return False
+        return ""
     if tensor.device.type != "cuda" or not hasattr(torch, "cuda"):
-        return False
+        return ""
     index = tensor.device.index
     if index is None:
         index = torch.cuda.current_device()
-    try:
-        return "Iluvatar" in torch.cuda.get_device_name(index)
-    except Exception:
-        return False
+    return _device_name_for_index(index)
+
+
+def is_iluvatar_device(tensor):
+    return "Iluvatar" in _device_name(tensor)
+
+
+def is_metax_device(tensor):
+    return "MetaX" in _device_name(tensor)
+
+
+def is_corex_or_metax_device(tensor):
+    name = _device_name(tensor)
+    return "Iluvatar" in name or "MetaX" in name
 
 
 @functools.cache
@@ -59,6 +77,63 @@ def _rad2deg_f32_kernel(input, output, n: tl.constexpr, block: tl.constexpr):
 
 
 @triton.jit
+def _copysign_f32_1d_kernel(
+    input,
+    other,
+    output,
+    n: tl.constexpr,
+    block: tl.constexpr,
+):
+    pid = tl.program_id(0)
+    offsets = pid * block + tl.arange(0, block)
+    mask = offsets < n
+    input_value = tl.load(input + offsets, mask=mask, other=0.0)
+    other_value = tl.load(other + offsets, mask=mask, other=0.0)
+    input_bits = input_value.to(tl.uint32, bitcast=True)
+    other_bits = other_value.to(tl.uint32, bitcast=True)
+    output_bits = (input_bits & 0x7FFFFFFF) | (other_bits & 0x80000000)
+    tl.store(output + offsets, output_bits.to(tl.float32, bitcast=True), mask=mask)
+
+
+@triton.jit
+def _copysign_f16_1d_kernel(
+    input,
+    other,
+    output,
+    n: tl.constexpr,
+    block: tl.constexpr,
+):
+    pid = tl.program_id(0)
+    offsets = pid * block + tl.arange(0, block)
+    mask = offsets < n
+    input_value = tl.load(input + offsets, mask=mask, other=0.0)
+    other_value = tl.load(other + offsets, mask=mask, other=0.0)
+    input_bits = input_value.to(tl.uint16, bitcast=True)
+    other_bits = other_value.to(tl.uint16, bitcast=True)
+    output_bits = (input_bits & 0x7FFF) | (other_bits & 0x8000)
+    tl.store(output + offsets, output_bits.to(tl.float16, bitcast=True), mask=mask)
+
+
+@triton.jit
+def _copysign_f64_1d_kernel(
+    input,
+    other,
+    output,
+    n: tl.constexpr,
+    block: tl.constexpr,
+):
+    pid = tl.program_id(0)
+    offsets = pid * block + tl.arange(0, block)
+    mask = offsets < n
+    input_value = tl.load(input + offsets, mask=mask, other=0.0)
+    other_value = tl.load(other + offsets, mask=mask, other=0.0)
+    input_bits = input_value.to(tl.uint64, bitcast=True)
+    other_bits = other_value.to(tl.uint64, bitcast=True)
+    output_bits = (input_bits & 0x7FFFFFFFFFFFFFFF) | (other_bits & 0x8000000000000000)
+    tl.store(output + offsets, output_bits.to(tl.float64, bitcast=True), mask=mask)
+
+
+@triton.jit
 def _copysign_f32_broadcast_kernel(
     input,
     other,
@@ -78,6 +153,74 @@ def _copysign_f32_broadcast_kernel(
     other_bits = other_value.to(tl.uint32, bitcast=True)
     output_bits = (input_bits & 0x7FFFFFFF) | (other_bits & 0x80000000)
     tl.store(output + offsets, output_bits.to(tl.float32, bitcast=True), mask=mask)
+
+
+@triton.jit
+def _copysign_f32_broadcast_tile_kernel(
+    input,
+    other,
+    output,
+    rows: tl.constexpr,
+    cols: tl.constexpr,
+    block_m: tl.constexpr,
+    block_n: tl.constexpr,
+):
+    pid_m = tl.program_id(0)
+    pid_n = tl.program_id(1)
+    row_offsets = pid_m * block_m + tl.arange(0, block_m)
+    col_offsets = pid_n * block_n + tl.arange(0, block_n)
+    input_value = tl.load(input + row_offsets[:, None], mask=row_offsets[:, None] < rows, other=0.0)
+    other_value = tl.load(other + col_offsets[None, :], mask=col_offsets[None, :] < cols, other=0.0)
+    input_bits = input_value.to(tl.uint32, bitcast=True)
+    other_bits = other_value.to(tl.uint32, bitcast=True)
+    output_bits = (input_bits & 0x7FFFFFFF) | (other_bits & 0x80000000)
+    mask = (row_offsets[:, None] < rows) & (col_offsets[None, :] < cols)
+    offsets = row_offsets[:, None] * cols + col_offsets[None, :]
+    tl.store(output + offsets, output_bits.to(tl.float32, bitcast=True), mask=mask)
+
+
+@triton.jit
+def _nextafter_f32_kernel(input, other, output, n: tl.constexpr, block: tl.constexpr):
+    pid = tl.program_id(0)
+    offsets = pid * block + tl.arange(0, block)
+    mask = offsets < n
+    input_value = tl.load(input + offsets, mask=mask, other=0.0)
+    other_value = tl.load(other + offsets, mask=mask, other=0.0)
+
+    bits = input_value.to(tl.uint32, bitcast=True)
+    increment = tl.where(input_value > 0, other_value > input_value, other_value < input_value)
+    next_bits = tl.where(increment, bits + 1, bits - 1)
+    value = next_bits.to(tl.float32, bitcast=True)
+
+    zero_value = tl.where(other_value < 0, -1.401298464324817e-45, 1.401298464324817e-45)
+    zero_value = tl.where(other_value == 0, other_value, zero_value)
+    value = tl.where(input_value == 0, zero_value, value)
+    value = tl.where(input_value == other_value, other_value, value)
+    value = tl.where(input_value != input_value, input_value, value)
+    value = tl.where(other_value != other_value, other_value, value)
+    tl.store(output + offsets, value, mask=mask)
+
+
+@triton.jit
+def _nextafter_f64_kernel(input, other, output, n: tl.constexpr, block: tl.constexpr):
+    pid = tl.program_id(0)
+    offsets = pid * block + tl.arange(0, block)
+    mask = offsets < n
+    input_value = tl.load(input + offsets, mask=mask, other=0.0)
+    other_value = tl.load(other + offsets, mask=mask, other=0.0)
+
+    bits = input_value.to(tl.uint64, bitcast=True)
+    increment = tl.where(input_value > 0, other_value > input_value, other_value < input_value)
+    next_bits = tl.where(increment, bits + 1, bits - 1)
+    value = next_bits.to(tl.float64, bitcast=True)
+
+    zero_value = tl.where(other_value < 0, -4.9406564584124654e-324, 4.9406564584124654e-324)
+    zero_value = tl.where(other_value == 0, other_value, zero_value)
+    value = tl.where(input_value == 0, zero_value, value)
+    value = tl.where(input_value == other_value, other_value, value)
+    value = tl.where(input_value != input_value, input_value, value)
+    value = tl.where(other_value != other_value, other_value, value)
+    tl.store(output + offsets, value, mask=mask)
 
 
 @triton.jit
@@ -108,6 +251,39 @@ def _nextafter_f32_broadcast_kernel(
     value = tl.where(input_value == other_value, other_value, value)
     value = tl.where(input_value != input_value, input_value, value)
     value = tl.where(other_value != other_value, other_value, value)
+    tl.store(output + offsets, value, mask=mask)
+
+
+@triton.jit
+def _nextafter_f32_broadcast_tile_kernel(
+    input,
+    other,
+    output,
+    rows: tl.constexpr,
+    cols: tl.constexpr,
+    block_m: tl.constexpr,
+    block_n: tl.constexpr,
+):
+    pid_m = tl.program_id(0)
+    pid_n = tl.program_id(1)
+    row_offsets = pid_m * block_m + tl.arange(0, block_m)
+    col_offsets = pid_n * block_n + tl.arange(0, block_n)
+    input_value = tl.load(input + row_offsets[:, None], mask=row_offsets[:, None] < rows, other=0.0)
+    other_value = tl.load(other + col_offsets[None, :], mask=col_offsets[None, :] < cols, other=0.0)
+
+    bits = input_value.to(tl.uint32, bitcast=True)
+    increment = tl.where(input_value > 0, other_value > input_value, other_value < input_value)
+    next_bits = tl.where(increment, bits + 1, bits - 1)
+    value = next_bits.to(tl.float32, bitcast=True)
+
+    zero_value = tl.where(other_value < 0, -1.401298464324817e-45, 1.401298464324817e-45)
+    zero_value = tl.where(other_value == 0, other_value, zero_value)
+    value = tl.where(input_value == 0, zero_value, value)
+    value = tl.where(input_value == other_value, other_value, value)
+    value = tl.where(input_value != input_value, input_value, value)
+    value = tl.where(other_value != other_value, other_value, value)
+    mask = (row_offsets[:, None] < rows) & (col_offsets[None, :] < cols)
+    offsets = row_offsets[:, None] * cols + col_offsets[None, :]
     tl.store(output + offsets, value, mask=mask)
 
 
@@ -570,49 +746,183 @@ def _lcm_u8_table_kernel(input, other, output, table, n: tl.constexpr, block: tl
     tl.store(output + offsets, value, mask=mask)
 
 
+@triton.jit
+def _lgamma_positive_approx(x, block: tl.constexpr):
+    y = x
+    acc = tl.zeros((block,), tl.float32)
+    for _ in range(8):
+        advance = y < 8.0
+        acc += tl.where(advance, tl.log(y), 0.0)
+        y += tl.where(advance, 1.0, 0.0)
+
+    inv = 1.0 / y
+    inv2 = inv * inv
+    correction = inv * (
+        0.08333333333333333
+        + inv2
+        * (
+            -0.002777777777777778
+            + inv2
+            * (
+                0.0007936507936507937
+                + inv2 * (-0.0005952380952380953 + inv2 * 0.0008417508417508418)
+            )
+        )
+    )
+    return (y - 0.5) * tl.log(y) - y + 0.9189385332046727 + correction - acc
+
+
+@triton.jit
+def _lgamma_metax_kernel(input, output, n: tl.constexpr, block: tl.constexpr):
+    pid = tl.program_id(0)
+    offsets = pid * block + tl.arange(0, block)
+    mask = offsets < n
+    x = tl.load(input + offsets, mask=mask, other=1.0).to(tl.float32)
+    positive_finite = (x > 0.0) & (x < float("inf")) & (x == x)
+    all_positive_finite = tl.min(tl.where(mask, positive_finite.to(tl.int32), 1), axis=0) == 1
+    if all_positive_finite:
+        value = _lgamma_positive_approx(x, block)
+    else:
+        positive_value = _lgamma_positive_approx(tl.where(x > 0.0, x, 1.0 - x), block)
+        abs_x = tl.abs(x)
+        floor_x = tl.floor(abs_x)
+        is_integer = abs_x == floor_x
+        sin_value = tl.sin(3.141592653589793 * abs_x)
+        reflected = 1.1447298858494002 - tl.log(tl.abs(sin_value)) - positive_value
+        value = tl.where(x > 0.0, positive_value, reflected)
+        value = tl.where((x <= 0.0) & is_integer, float("inf"), value)
+        value = tl.where(x == float("inf"), float("inf"), value)
+        value = tl.where(x != x, x, value)
+    tl.store(output + offsets, value, mask=mask)
+
+
 def copysign_f32_broadcast(input, other, output):
     rows = input.shape[0]
     cols = other.shape[1]
-    n = rows * cols
-    block = 256
-    grid = (triton.cdiv(n, block),)
-    _copysign_f32_broadcast_kernel[grid](
+    block_m = 16
+    block_n = 64
+    grid = (triton.cdiv(rows, block_m), triton.cdiv(cols, block_n))
+    _copysign_f32_broadcast_tile_kernel[grid](
         input,
         other,
         output,
+        rows,
         cols,
-        n,
-        block=block,
+        block_m=block_m,
+        block_n=block_n,
         num_warps=4,
     )
 
 
-def rad2deg_f32_1d(input, output):
+def rad2deg_1d(input, output):
     n = input.numel()
-    block = 1024
+    if input.element_size() <= 2:
+        block = 8192
+        num_warps = 8
+    elif input.element_size() <= 4:
+        block = 1024
+        num_warps = 4
+    else:
+        block = 1024
+        num_warps = 8
     grid = (triton.cdiv(n, block),)
     _rad2deg_f32_kernel[grid](
         input,
         output,
         n,
         block=block,
+        num_warps=num_warps,
+    )
+
+
+def rad2deg_f32_1d(input, output):
+    rad2deg_1d(input, output)
+
+
+def copysign_f32_1d(input, other, output):
+    n = input.numel()
+    block = 1024
+    grid = (triton.cdiv(n, block),)
+    _copysign_f32_1d_kernel[grid](
+        input,
+        other,
+        output,
+        n,
+        block=block,
+        num_warps=8,
+    )
+
+
+def copysign_f16_1d(input, other, output):
+    n = input.numel()
+    block = 1024
+    grid = (triton.cdiv(n, block),)
+    _copysign_f16_1d_kernel[grid](
+        input,
+        other,
+        output,
+        n,
+        block=block,
         num_warps=4,
+    )
+
+
+def copysign_f64_1d(input, other, output):
+    n = input.numel()
+    block = 512
+    grid = (triton.cdiv(n, block),)
+    _copysign_f64_1d_kernel[grid](
+        input,
+        other,
+        output,
+        n,
+        block=block,
+        num_warps=8,
+    )
+
+
+def nextafter_f32_1d(input, other, output):
+    n = input.numel()
+    block = 512
+    grid = (triton.cdiv(n, block),)
+    _nextafter_f32_kernel[grid](
+        input,
+        other,
+        output,
+        n,
+        block=block,
+        num_warps=4,
+    )
+
+
+def nextafter_f64_1d(input, other, output):
+    n = input.numel()
+    block = 128
+    grid = (triton.cdiv(n, block),)
+    _nextafter_f64_kernel[grid](
+        input,
+        other,
+        output,
+        n,
+        block=block,
+        num_warps=1,
     )
 
 
 def nextafter_f32_broadcast(input, other, output):
     rows = input.shape[0]
     cols = other.shape[1]
-    n = rows * cols
-    block = 256
-    grid = (triton.cdiv(n, block),)
-    _nextafter_f32_broadcast_kernel[grid](
+    block_m = 16
+    block_n = 64
+    grid = (triton.cdiv(rows, block_m), triton.cdiv(cols, block_n))
+    _nextafter_f32_broadcast_tile_kernel[grid](
         input,
         other,
         output,
+        rows,
         cols,
-        n,
-        block=block,
+        block_m=block_m,
+        block_n=block_n,
         num_warps=4,
     )
 
@@ -621,7 +931,7 @@ def nextafter_f16_broadcast(input, other, output):
     rows = input.shape[0]
     cols = other.shape[1]
     n = rows * cols
-    block = 256
+    block = 512
     grid = (triton.cdiv(n, block),)
     _nextafter_f16_broadcast_kernel[grid](
         input,
@@ -630,7 +940,7 @@ def nextafter_f16_broadcast(input, other, output):
         cols,
         n,
         block=block,
-        num_warps=4,
+        num_warps=1,
     )
 
 
@@ -644,7 +954,7 @@ def nextafter_f16_1d(input, other, output):
         output,
         n,
         block=block,
-        num_warps=4,
+        num_warps=1,
     )
 
 
@@ -674,9 +984,22 @@ def nextafter_f16_strided(input, other, output):
         *other_strides,
         *output_strides,
         block=block,
-        num_warps=4,
+        num_warps=1,
     )
     return True
+
+
+def lgamma_metax_1d(input, output):
+    n = input.numel()
+    block = 256
+    grid = (triton.cdiv(n, block),)
+    _lgamma_metax_kernel[grid](
+        input,
+        output,
+        n,
+        block=block,
+        num_warps=1,
+    )
 
 
 def lcm_1d(input, other, output, max_iterations, absolute_output):
@@ -706,7 +1029,7 @@ def lcm_1d(input, other, output, max_iterations, absolute_output):
             max_iterations,
             absolute_output,
             block=block,
-            num_warps=1,
+            num_warps=2,
         )
         return
     _lcm_small_or_dynamic_kernel[grid](
