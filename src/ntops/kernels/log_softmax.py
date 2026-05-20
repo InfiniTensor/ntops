@@ -1,0 +1,44 @@
+import functools
+
+import ninetoothed.language as ntl
+from ninetoothed import Tensor
+
+from ntops.kernels.reduction import arrangement
+
+
+def _exp(x, dtype):
+    exp_dtype = dtype if dtype != ntl.float16 else ntl.float32
+    return ntl.cast(ntl.exp(ntl.cast(x, exp_dtype)), dtype)
+
+
+def application(input, output):
+    dtype = output.dtype.dtype
+    prev_max = ntl.cast(float("-inf"), dtype)
+    denominator = ntl.cast(0, dtype)
+
+    for i in range(input.shape[0]):
+        input_i = ntl.cast(input[i], dtype)
+        curr_max = ntl.cast(ntl.maximum(prev_max, ntl.max(input_i)), dtype)
+        input_max_diff_exp = _exp(input_i - curr_max, dtype)
+        prev_curr_max_diff_exp = _exp(prev_max - curr_max, dtype)
+        denominator = denominator * prev_curr_max_diff_exp + ntl.sum(input_max_diff_exp)
+        prev_max = curr_max
+
+    log_dtype = dtype if dtype != ntl.float16 else ntl.float32
+
+    for i in range(input.shape[0]):
+        log_denominator = ntl.log(ntl.cast(denominator, log_dtype))
+        output[i] = ntl.cast(ntl.cast(input[i], log_dtype) - ntl.cast(prev_max, log_dtype) - log_denominator, dtype)
+
+
+def premake(ndim, dim, dtype=None, block_size=None):
+    arrangement_ = functools.partial(arrangement, dim=dim, block_size=block_size)
+
+    tensors = (
+        Tensor(
+            ndim, dtype=dtype, other=float("-inf"), shape_options={"constexpr": True}
+        ),
+        Tensor(ndim, dtype=dtype),
+    )
+
+    return arrangement_, application, tensors
