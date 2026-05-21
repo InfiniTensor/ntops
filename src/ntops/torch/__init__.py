@@ -11,8 +11,11 @@ from ntops.torch.conv2d import conv2d
 from ntops.torch.cos import cos
 from ntops.torch.div import div
 from ntops.torch.dropout import dropout
+from ntops.torch.feature_alpha_dropout import feature_alpha_dropout
 from ntops.torch.eq import eq
 from ntops.torch.exp import exp
+from ntops.torch.flip import flip
+from ntops.torch.fliplr import fliplr
 from ntops.torch.ge import ge
 from ntops.torch.gelu import gelu
 from ntops.torch.gt import gt
@@ -24,9 +27,11 @@ from ntops.torch.lt import lt
 from ntops.torch.matmul import matmul
 from ntops.torch.max_pool2d import max_pool2d
 from ntops.torch.mm import mm
+from ntops.torch.mse_loss import mse_loss
 from ntops.torch.mul import mul
 from ntops.torch.ne import ne
 from ntops.torch.neg import neg
+from ntops.torch.pixel_unshuffle import pixel_unshuffle
 from ntops.torch.pow import pow
 from ntops.torch.relu import relu
 from ntops.torch.rms_norm import rms_norm
@@ -54,8 +59,11 @@ __all__ = [
     "cos",
     "div",
     "dropout",
+    "feature_alpha_dropout",
     "eq",
     "exp",
+    "flip",
+    "fliplr",
     "ge",
     "gelu",
     "gt",
@@ -67,9 +75,11 @@ __all__ = [
     "matmul",
     "max_pool2d",
     "mm",
+    "mse_loss",
     "mul",
     "ne",
     "neg",
+    "pixel_unshuffle",
     "pow",
     "relu",
     "rms_norm",
