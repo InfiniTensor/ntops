@@ -13,6 +13,10 @@ from ntops.torch.div import div
 from ntops.torch.dropout import dropout
 from ntops.torch.eq import eq
 from ntops.torch.exp import exp
+from ntops.torch.frac import frac
+from ntops.torch.fractional_max_pool2d import fractional_max_pool2d
+from ntops.torch.fractional_max_pool3d import fractional_max_pool3d
+
 from ntops.torch.ge import ge
 from ntops.torch.gelu import gelu
 from ntops.torch.gt import gt
@@ -24,7 +28,8 @@ from ntops.torch.lt import lt
 from ntops.torch.matmul import matmul
 from ntops.torch.max_pool2d import max_pool2d
 from ntops.torch.mm import mm
-from ntops.torch.mul import mul
+from ntops.torch.mul import mul 
+from ntops.torch.multilabel_margin_loss import  multilabel_margin_loss
 from ntops.torch.ne import ne
 from ntops.torch.neg import neg
 from ntops.torch.pow import pow
@@ -36,6 +41,7 @@ from ntops.torch.scaled_dot_product_attention import scaled_dot_product_attentio
 from ntops.torch.sigmoid import sigmoid
 from ntops.torch.silu import silu
 from ntops.torch.sin import sin
+from ntops.torch.scatter_add import scatter_add
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
@@ -56,6 +62,9 @@ __all__ = [
     "dropout",
     "eq",
     "exp",
+    "frac",
+    "fractional_max_pool2d",
+    "fractional_max_pool3d",
     "ge",
     "gelu",
     "gt",
@@ -68,6 +77,7 @@ __all__ = [
     "max_pool2d",
     "mm",
     "mul",
+    "multilabel_margin_loss",
     "ne",
     "neg",
     "pow",
@@ -76,6 +86,7 @@ __all__ = [
     "rotary_position_embedding",
     "rsqrt",
     "scaled_dot_product_attention",
+    "scatter_add",
     "sigmoid",
     "silu",
     "sin",
