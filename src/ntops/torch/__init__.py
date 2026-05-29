@@ -7,8 +7,11 @@ from ntops.torch.bitwise_not import bitwise_not
 from ntops.torch.bitwise_or import bitwise_or
 from ntops.torch.bmm import bmm
 from ntops.torch.clamp import clamp
+from ntops.torch.combinations import combinations
 from ntops.torch.conv2d import conv2d
+from ntops.torch.corrcoef import corrcoef
 from ntops.torch.cos import cos
+from ntops.torch.count_nonzero import count_nonzero
 from ntops.torch.div import div
 from ntops.torch.dropout import dropout
 from ntops.torch.eq import eq
@@ -18,6 +21,7 @@ from ntops.torch.gelu import gelu
 from ntops.torch.gt import gt
 from ntops.torch.isinf import isinf
 from ntops.torch.isnan import isnan
+from ntops.torch.kl_div import kl_div
 from ntops.torch.layer_norm import layer_norm
 from ntops.torch.le import le
 from ntops.torch.lt import lt
@@ -25,6 +29,7 @@ from ntops.torch.matmul import matmul
 from ntops.torch.max_pool2d import max_pool2d
 from ntops.torch.mm import mm
 from ntops.torch.mul import mul
+from ntops.torch.narrow import narrow
 from ntops.torch.ne import ne
 from ntops.torch.neg import neg
 from ntops.torch.pow import pow
@@ -50,8 +55,11 @@ __all__ = [
     "bitwise_or",
     "bmm",
     "clamp",
+    "combinations",
     "conv2d",
+    "corrcoef",
     "cos",
+    "count_nonzero",
     "div",
     "dropout",
     "eq",
@@ -61,6 +69,7 @@ __all__ = [
     "gt",
     "isinf",
     "isnan",
+    "kl_div",
     "layer_norm",
     "le",
     "lt",
@@ -68,6 +77,7 @@ __all__ = [
     "max_pool2d",
     "mm",
     "mul",
+    "narrow",
     "ne",
     "neg",
     "pow",
