@@ -68,3 +68,21 @@ def _get_matmul_input_precision():
         return ntops.kernels.mm.InputPrecisionVariant.IEEE
 
     return ntops.kernels.mm.InputPrecisionVariant.TF32
+
+
+@functools.cache
+def _device_key():
+    # Select a launch config by hardware only (not input size / op name), as
+    # required by the rules. Cached so the device name is queried once.
+    name = torch.cuda.get_device_name().lower() if torch.cuda.is_available() else ""
+
+    if "metax" in name:
+        return "metax"
+
+    if "iluvatar" in name:
+        return "iluvatar"
+
+    if "nvidia" in name:
+        return "nvidia"
+
+    return "default"
