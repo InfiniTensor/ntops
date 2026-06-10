@@ -27,6 +27,7 @@ from ntops.torch.mm import mm
 from ntops.torch.mul import mul
 from ntops.torch.ne import ne
 from ntops.torch.neg import neg
+from ntops.torch.outer import outer
 from ntops.torch.pow import pow
 from ntops.torch.relu import relu
 from ntops.torch.rms_norm import rms_norm
@@ -39,6 +40,10 @@ from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
+from ntops.torch.trace import trace
+from ntops.torch.tril import tril
+from ntops.torch.triu import triu
+from ntops.torch.triu_indices import triu_indices
 
 __all__ = [
     "abs",
@@ -70,6 +75,7 @@ __all__ = [
     "mul",
     "ne",
     "neg",
+    "outer",
     "pow",
     "relu",
     "rms_norm",
@@ -82,4 +88,8 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "trace",
+    "tril",
+    "triu",
+    "triu_indices",
 ]
