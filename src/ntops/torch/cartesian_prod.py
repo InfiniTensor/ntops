@@ -5,10 +5,18 @@ from ntops.torch.utils import _cached_make
 
 
 def cartesian_prod(*tensors):
-    pre_computed = torch.cartesian_prod(*tensors)
-    output = torch.empty_like(pre_computed)
+    if len(tensors) == 2:
+        a, b = tensors[0], tensors[1]
+        n, m = a.size(0), b.size(0)
 
-    kernel = _cached_make(ntops.kernels.cartesian_prod.premake, pre_computed.ndim)
-    kernel(pre_computed, output)
+        a_exp = a.repeat_interleave(m).unsqueeze(1)
+        b_exp = b.repeat(n).unsqueeze(1)
 
-    return output
+        output = torch.empty(n * m, 2, dtype=a.dtype, device=a.device)
+
+        kernel = _cached_make(ntops.kernels.cartesian_prod.premake)
+        kernel(a_exp, b_exp, output)
+
+        return output
+
+    return torch.cartesian_prod(*tensors)

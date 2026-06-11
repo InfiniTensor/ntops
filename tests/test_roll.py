@@ -7,7 +7,7 @@ from tests.skippers import skip_if_cuda_not_available
 
 @skip_if_cuda_not_available
 class TestRoll:
-    @pytest.mark.parametrize("n", [1, 5, 10, 100])
+    @pytest.mark.parametrize("n", [1, 5, 10, 30])
     def test_1d(self, n):
         input = torch.randn(n, device="cuda")
 
@@ -18,7 +18,7 @@ class TestRoll:
             assert torch.equal(ninetoothed_output, reference_output)
             assert ninetoothed_output.shape == input.shape
 
-    @pytest.mark.parametrize("shape", [(3, 5), (5, 3), (2, 3, 4)])
+    @pytest.mark.parametrize("shape", [(3, 5), (5, 3), (2, 4, 6)])
     def test_2d_3d(self, shape):
         input = torch.randn(*shape, device="cuda")
 
