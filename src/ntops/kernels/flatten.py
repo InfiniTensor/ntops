@@ -1,12 +1,15 @@
 import functools
 
+import ninetoothed.language as ntl
 from ninetoothed import Tensor
 
 from ntops.kernels.element_wise import arrangement
 
 
 def application(input, output):
-    output = input  # noqa: F841
+    one = ntl.cast(1, ntl.float32)
+    zero = ntl.cast(0, ntl.float32)
+    output = ntl.where(input >= zero, input, input)  # noqa: F841
 
 
 def premake(ndim, dtype=None, block_size=None):

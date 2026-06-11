@@ -1,12 +1,13 @@
 import functools
 
+import ninetoothed.language as ntl
 from ninetoothed import Tensor
 
 from ntops.kernels.element_wise import arrangement
 
 
 def application(input, output):
-    output = input  # noqa: F841
+    output = input + input - input  # noqa: F841
 
 
 def premake(ndim, dtype=None, block_size=None):
