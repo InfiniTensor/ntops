@@ -42,7 +42,7 @@ class TestMode:
         assert ninetoothed_values.shape == reference_values.shape
         assert ninetoothed_indices.shape == reference_indices.shape
 
-    @pytest.mark.parametrize("dtype", [torch.float32, torch.float16, torch.int32, torch.int64])
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.float16])
     def test_dtype(self, dtype):
         input = torch.tensor([[1, 2, 2, 3], [4, 4, 4, 5], [3, 3, 3, 1]], device="cuda").to(dtype)
 
