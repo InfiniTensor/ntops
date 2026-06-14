@@ -14,6 +14,10 @@ def tril(input, diagonal=0, *, out=None):
     if diagonal != 0:
         cols = cols - diagonal
 
+    # Expand rows and cols to match input's ndim
+    rows = rows.reshape((1,) * (input.ndim - 2) + (n, m)).expand_as(input)
+    cols = cols.reshape((1,) * (input.ndim - 2) + (n, m)).expand_as(input)
+
     if out is None:
         out = torch.empty_like(input)
 
