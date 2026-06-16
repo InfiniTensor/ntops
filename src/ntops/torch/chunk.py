@@ -14,19 +14,20 @@ def chunk(input, chunks, dim=0):
 
     for i in range(chunks):
         start = i * chunk_size
-        end = min(start + chunk_size, input.shape[dim])
 
         if start >= input.shape[dim]:
             break
 
-        slices = [slice(None)] * input.ndim
-        slices[dim] = slice(start, end)
+        actual_size = min(chunk_size, input.shape[dim] - start)
 
-        chunk_tensor = input[tuple(slices)]
-        out_chunk = torch.empty_like(chunk_tensor)
+        out_shape = list(input.shape)
+        out_shape[dim] = actual_size
+        out_chunk = torch.empty(out_shape, dtype=input.dtype, device=input.device)
 
-        kernel = _cached_make(ntops.kernels.chunk.premake, input.ndim)
-        kernel(chunk_tensor, out_chunk)
+        kernel = _cached_make(
+            ntops.kernels.chunk.premake, input.ndim, dim, start, actual_size
+        )
+        kernel(input, out_chunk)
 
         outputs.append(out_chunk)
 
