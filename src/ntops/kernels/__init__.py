@@ -27,6 +27,7 @@ from ntops.kernels import (
     mul,
     ne,
     neg,
+    outer,
     pow,
     relu,
     rms_norm,
@@ -39,6 +40,10 @@ from ntops.kernels import (
     softmax,
     sub,
     tanh,
+    trace,
+    tril,
+    triu,
+    triu_indices,
 )
 
 __all__ = [
@@ -70,6 +75,7 @@ __all__ = [
     "mul",
     "ne",
     "neg",
+    "outer",
     "pow",
     "relu",
     "rms_norm",
@@ -82,4 +88,8 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "trace",
+    "tril",
+    "triu",
+    "triu_indices",
 ]
