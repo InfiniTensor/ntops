@@ -20,11 +20,15 @@ from ntops.torch.isinf import isinf
 from ntops.torch.isnan import isnan
 from ntops.torch.layer_norm import layer_norm
 from ntops.torch.le import le
+from ntops.torch.linspace import linspace
+from ntops.torch.logit import logit
+from ntops.torch.logspace import logspace
 from ntops.torch.lt import lt
 from ntops.torch.matmul import matmul
 from ntops.torch.max_pool2d import max_pool2d
 from ntops.torch.mm import mm
 from ntops.torch.mul import mul
+from ntops.torch.nan_to_num import nan_to_num
 from ntops.torch.ne import ne
 from ntops.torch.neg import neg
 from ntops.torch.pow import pow
@@ -39,6 +43,7 @@ from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
+from ntops.torch.trapezoid import trapezoid
 
 __all__ = [
     "abs",
@@ -63,11 +68,15 @@ __all__ = [
     "isnan",
     "layer_norm",
     "le",
+    "linspace",
+    "logit",
+    "logspace",
     "lt",
     "matmul",
     "max_pool2d",
     "mm",
     "mul",
+    "nan_to_num",
     "ne",
     "neg",
     "pow",
@@ -82,4 +91,5 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "trapezoid",
 ]

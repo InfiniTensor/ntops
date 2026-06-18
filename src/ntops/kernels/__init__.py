@@ -21,10 +21,14 @@ from ntops.kernels import (
     isnan,
     layer_norm,
     le,
+    linspace,
+    logit,
+    logspace,
     lt,
     max_pool2d,
     mm,
     mul,
+    nan_to_num,
     ne,
     neg,
     pow,
@@ -39,6 +43,7 @@ from ntops.kernels import (
     softmax,
     sub,
     tanh,
+    trapezoid,
 )
 
 __all__ = [
@@ -64,10 +69,14 @@ __all__ = [
     "isnan",
     "layer_norm",
     "le",
+    "linspace",
+    "logit",
+    "logspace",
     "lt",
     "max_pool2d",
     "mm",
     "mul",
+    "nan_to_num",
     "ne",
     "neg",
     "pow",
@@ -82,4 +91,5 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "trapezoid",
 ]
