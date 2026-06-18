@@ -6,6 +6,7 @@ from ntops.torch.bitwise_and import bitwise_and
 from ntops.torch.bitwise_not import bitwise_not
 from ntops.torch.bitwise_or import bitwise_or
 from ntops.torch.bmm import bmm
+from ntops.torch.chunk import chunk
 from ntops.torch.clamp import clamp
 from ntops.torch.conv2d import conv2d
 from ntops.torch.cos import cos
@@ -13,6 +14,8 @@ from ntops.torch.div import div
 from ntops.torch.dropout import dropout
 from ntops.torch.eq import eq
 from ntops.torch.exp import exp
+from ntops.torch.eye import eye
+from ntops.torch.flatten import flatten
 from ntops.torch.ge import ge
 from ntops.torch.gelu import gelu
 from ntops.torch.gt import gt
@@ -29,6 +32,7 @@ from ntops.torch.ne import ne
 from ntops.torch.neg import neg
 from ntops.torch.pow import pow
 from ntops.torch.relu import relu
+from ntops.torch.repeat import repeat
 from ntops.torch.rms_norm import rms_norm
 from ntops.torch.rotary_position_embedding import rotary_position_embedding
 from ntops.torch.rsqrt import rsqrt
@@ -39,6 +43,7 @@ from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
+from ntops.torch.unbind import unbind
 
 __all__ = [
     "abs",
@@ -49,6 +54,7 @@ __all__ = [
     "bitwise_not",
     "bitwise_or",
     "bmm",
+    "chunk",
     "clamp",
     "conv2d",
     "cos",
@@ -56,6 +62,8 @@ __all__ = [
     "dropout",
     "eq",
     "exp",
+    "eye",
+    "flatten",
     "ge",
     "gelu",
     "gt",
@@ -72,6 +80,7 @@ __all__ = [
     "neg",
     "pow",
     "relu",
+    "repeat",
     "rms_norm",
     "rotary_position_embedding",
     "rsqrt",
@@ -82,4 +91,5 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "unbind",
 ]

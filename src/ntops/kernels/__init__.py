@@ -7,6 +7,7 @@ from ntops.kernels import (
     bitwise_not,
     bitwise_or,
     bmm,
+    chunk,
     clamp,
     conv2d,
     cos,
@@ -14,6 +15,8 @@ from ntops.kernels import (
     dropout,
     eq,
     exp,
+    eye,
+    flatten,
     ge,
     gelu,
     gt,
@@ -29,6 +32,7 @@ from ntops.kernels import (
     neg,
     pow,
     relu,
+    repeat,
     rms_norm,
     rotary_position_embedding,
     rsqrt,
@@ -39,6 +43,7 @@ from ntops.kernels import (
     softmax,
     sub,
     tanh,
+    unbind,
 )
 
 __all__ = [
@@ -50,6 +55,7 @@ __all__ = [
     "bitwise_not",
     "bitwise_or",
     "bmm",
+    "chunk",
     "clamp",
     "conv2d",
     "cos",
@@ -57,6 +63,8 @@ __all__ = [
     "dropout",
     "eq",
     "exp",
+    "eye",
+    "flatten",
     "ge",
     "gelu",
     "gt",
@@ -72,6 +80,7 @@ __all__ = [
     "neg",
     "pow",
     "relu",
+    "repeat",
     "rms_norm",
     "rotary_position_embedding",
     "rsqrt",
@@ -82,4 +91,5 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "unbind",
 ]
