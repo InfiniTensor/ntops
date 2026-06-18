@@ -10,8 +10,8 @@ from tests.utils import generate_arguments
 @pytest.mark.parametrize(*generate_arguments())
 def test_copysign(shape, dtype, device, rtol, atol):
     # TODO: Test for `float16` later.
-    if dtype is torch.float16:
-        return
+    # if dtype is torch.float16:
+    #     return
     input = torch.randn(shape, dtype=dtype, device=device)
     other = torch.randn(shape, dtype=dtype, device=device)
 

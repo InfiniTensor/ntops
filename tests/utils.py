@@ -9,7 +9,7 @@ def generate_arguments(use_float=True):
     if use_float:
         dtype_arr = (torch.float32, torch.float16)
     else:
-        dtype_arr = (torch.bool, torch.int32)
+        dtype_arr = (torch.int8, torch.int16, torch.int32, torch.int64)
 
     for ndim in range(1, 5):
         for dtype in dtype_arr:

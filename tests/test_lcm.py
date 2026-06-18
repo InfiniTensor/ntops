@@ -9,17 +9,13 @@ from tests.utils import generate_arguments
 @skip_if_cuda_not_available
 @pytest.mark.parametrize(*generate_arguments(False))
 def test_lcm(shape, dtype, device, rtol, atol):
-    if dtype == torch.bool:
-        input = torch.randint(1, 10, size=shape, dtype=torch.int32, device=device)
-        other = torch.randint(1, 10, size=shape, dtype=torch.int32, device=device)
-    else:
-        upper_bound = 20
-        input = torch.randint(
-            1, upper_bound, size=shape, dtype=dtype, device=device
-        )
-        other = torch.randint(
-            1, upper_bound, size=shape, dtype=dtype, device=device
-        )
+    upper_bound = 100
+    input = torch.randint(
+        -upper_bound, upper_bound + 1, size=shape, dtype=dtype, device=device
+    )
+    other = torch.randint(
+        -upper_bound, upper_bound + 1, size=shape, dtype=dtype, device=device
+    )
 
     ninetoothed_output = ntops.torch.lcm(input, other)
     reference_output = torch.lcm(input, other)
