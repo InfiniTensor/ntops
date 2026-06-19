@@ -45,6 +45,11 @@ from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
+from ntops.torch.eye import eye
+from ntops.torch.flatten import flatten
+from ntops.torch.chunk import chunk
+from ntops.torch.unbind import unbind
+from ntops.torch.repeat import repeat
 
 __all__ = [
     "abs",
@@ -57,6 +62,7 @@ __all__ = [
     "gcd",
     "bitwise_or",
     "bmm",
+    "chunk",
     "clamp",
     "conv2d",
     "cos",
@@ -64,6 +70,7 @@ __all__ = [
     "dropout",
     "eq",
     "exp",
+    "flatten",
     "ge",
     "gelu",
     "gt",
@@ -83,6 +90,7 @@ __all__ = [
     "nextafter",
     "pow",
     "rad2deg",
+    "repeat",
     "relu",
     "rms_norm",
     "rotary_position_embedding",
@@ -94,4 +102,6 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "unbind",
+    "eye",
 ]

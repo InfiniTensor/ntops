@@ -45,6 +45,7 @@ from ntops.kernels import (
     softmax,
     sub,
     tanh,
+    eye,
 )
 
 __all__ = [
@@ -94,4 +95,5 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "eye",
 ]
