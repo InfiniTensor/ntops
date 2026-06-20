@@ -76,7 +76,14 @@ def bench_narrow():
         ms_nt = triton.testing.do_bench(
             lambda: ntops.torch.narrow(x, dim, start, length)
         )
-        ms_th = triton.testing.do_bench(lambda: torch.narrow(x, dim, start, length))
+        # torch.narrow returns a zero-copy view (O(1) metadata, no memory
+        # traffic), so comparing our materializing copy against it is apples to
+        # oranges -- the "148437 GB/s" it reports is bytes / ~0 time, not real
+        # bandwidth. Add .contiguous() so torch also materializes the slice: the
+        # fair, same-work comparison (matches benchmark_narrow in test_narrow.py).
+        ms_th = triton.testing.do_bench(
+            lambda: torch.narrow(x, dim, start, length).contiguous()
+        )
         _report_bw("narrow", f"{shape} d={dim} l={length}", ms_nt, ms_th, nbytes)
 
 
