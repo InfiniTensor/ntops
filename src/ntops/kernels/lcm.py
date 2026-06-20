@@ -38,18 +38,10 @@ def application(a, b, output):
 
     gcd_val = x
 
-    # Compute LCM: (a / gcd) * b to avoid overflow
-    # Use float64 for intermediate calculation to maintain precision
-    gcd_float = ntl.cast(gcd_val, ntl.float64)
-    a_float = ntl.cast(a_abs, ntl.float64)
-
+    # Compute LCM: (a_abs // gcd) * b_abs using pure integer arithmetic
     # Safe division (avoid division by zero)
-    gcd_safe_float = ntl.where(gcd_float == 0, ntl.cast(1, ntl.float64), gcd_float)
-    quotient_float = a_float / gcd_safe_float
-
-    # Cast back to integer and multiply
-    quotient = ntl.cast(quotient_float, a_abs.dtype)
-    lcm_result = quotient * b_abs
+    gcd_safe = ntl.where(gcd_val == 0, ntl.cast(1, a_abs.dtype), gcd_val)
+    lcm_result = (a_abs // gcd_safe) * b_abs
 
     # Return 0 if either input was 0, otherwise return LCM
     zero_val = ntl.cast(0, output.dtype)
