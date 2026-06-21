@@ -7,7 +7,9 @@ from ntops.torch.bitwise_not import bitwise_not
 from ntops.torch.bitwise_or import bitwise_or
 from ntops.torch.bmm import bmm
 from ntops.torch.clamp import clamp
+from ntops.torch.column_stack import column_stack
 from ntops.torch.conv2d import conv2d
+from ntops.torch.cartesian_prod import cartesian_prod
 from ntops.torch.cos import cos
 from ntops.torch.div import div
 from ntops.torch.dropout import dropout
@@ -23,13 +25,16 @@ from ntops.torch.le import le
 from ntops.torch.lt import lt
 from ntops.torch.matmul import matmul
 from ntops.torch.max_pool2d import max_pool2d
+from ntops.torch.meshgrid import meshgrid
 from ntops.torch.mm import mm
+from ntops.torch.mode import mode
 from ntops.torch.mul import mul
 from ntops.torch.ne import ne
 from ntops.torch.neg import neg
 from ntops.torch.pow import pow
 from ntops.torch.relu import relu
 from ntops.torch.rms_norm import rms_norm
+from ntops.torch.roll import roll
 from ntops.torch.rotary_position_embedding import rotary_position_embedding
 from ntops.torch.rsqrt import rsqrt
 from ntops.torch.scaled_dot_product_attention import scaled_dot_product_attention
@@ -49,7 +54,9 @@ __all__ = [
     "bitwise_not",
     "bitwise_or",
     "bmm",
+    "cartesian_prod",
     "clamp",
+    "column_stack",
     "conv2d",
     "cos",
     "div",
@@ -66,13 +73,16 @@ __all__ = [
     "lt",
     "matmul",
     "max_pool2d",
+    "meshgrid",
     "mm",
+    "mode",
     "mul",
     "ne",
     "neg",
     "pow",
     "relu",
     "rms_norm",
+    "roll",
     "rotary_position_embedding",
     "rsqrt",
     "scaled_dot_product_attention",
