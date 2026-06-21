@@ -42,11 +42,7 @@ from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
-from ntops.torch.eye import eye
-from ntops.torch.flatten import flatten
-from ntops.torch.chunk import chunk
-from ntops.torch.unbind import unbind
-from ntops.torch.repeat import repeat
+# eye, flatten, chunk, unbind, repeat — source files not yet created
 from ntops.torch.roll import roll
 from ntops.torch.column_stack import column_stack
 
