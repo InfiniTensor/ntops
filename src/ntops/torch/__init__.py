@@ -7,6 +7,7 @@ from ntops.torch.bitwise_not import bitwise_not
 from ntops.torch.bitwise_or import bitwise_or
 from ntops.torch.bmm import bmm
 from ntops.torch.clamp import clamp
+from ntops.torch.channel_shuffle import channel_shuffle
 from ntops.torch.conv2d import conv2d
 from ntops.torch.cos import cos
 from ntops.torch.div import div
@@ -16,6 +17,7 @@ from ntops.torch.exp import exp
 from ntops.torch.ge import ge
 from ntops.torch.gelu import gelu
 from ntops.torch.gt import gt
+from ntops.torch.im2col import im2col
 from ntops.torch.isinf import isinf
 from ntops.torch.isnan import isnan
 from ntops.torch.layer_norm import layer_norm
@@ -24,6 +26,7 @@ from ntops.torch.lt import lt
 from ntops.torch.matmul import matmul
 from ntops.torch.max_pool2d import max_pool2d
 from ntops.torch.mm import mm
+from ntops.torch.moveaxis import moveaxis
 from ntops.torch.mul import mul
 from ntops.torch.ne import ne
 from ntops.torch.neg import neg
@@ -39,7 +42,8 @@ from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
-
+from ntops.torch.tensor_split import tensor_split
+from ntops.torch.unflatten import unflatten
 __all__ = [
     "abs",
     "add",
@@ -49,6 +53,7 @@ __all__ = [
     "bitwise_not",
     "bitwise_or",
     "bmm",
+    "channel_shuffle"
     "clamp",
     "conv2d",
     "cos",
@@ -59,6 +64,7 @@ __all__ = [
     "ge",
     "gelu",
     "gt",
+    "im2col",
     "isinf",
     "isnan",
     "layer_norm",
@@ -67,6 +73,7 @@ __all__ = [
     "matmul",
     "max_pool2d",
     "mm",
+    "moveaxis",
     "mul",
     "ne",
     "neg",
@@ -82,4 +89,6 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "tensor_split",
+    "unflatten",
 ]

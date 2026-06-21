@@ -8,6 +8,7 @@ from ntops.kernels import (
     bitwise_or,
     bmm,
     clamp,
+    channel_shuffle,
     conv2d,
     cos,
     div,
@@ -17,6 +18,7 @@ from ntops.kernels import (
     ge,
     gelu,
     gt,
+    im2col,
     isinf,
     isnan,
     layer_norm,
@@ -24,6 +26,7 @@ from ntops.kernels import (
     lt,
     max_pool2d,
     mm,
+    moveaxis,
     mul,
     ne,
     neg,
@@ -39,6 +42,8 @@ from ntops.kernels import (
     softmax,
     sub,
     tanh,
+    tensor_split,
+    unflatten,
 )
 
 __all__ = [
@@ -50,6 +55,7 @@ __all__ = [
     "bitwise_not",
     "bitwise_or",
     "bmm",
+    "channel_shuffle",
     "clamp",
     "conv2d",
     "cos",
@@ -60,6 +66,7 @@ __all__ = [
     "ge",
     "gelu",
     "gt",
+    "im2col",
     "isinf",
     "isnan",
     "layer_norm",
@@ -67,6 +74,7 @@ __all__ = [
     "lt",
     "max_pool2d",
     "mm",
+    "moveaxis",
     "mul",
     "ne",
     "neg",
@@ -82,4 +90,6 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "tensor_split",
+    "unflatten",
 ]
