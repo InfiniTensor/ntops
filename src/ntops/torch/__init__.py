@@ -3,6 +3,8 @@ from ntops.torch.add import add
 from ntops.torch.addmm import addmm
 from ntops.torch.avg_pool2d import avg_pool2d
 from ntops.torch.bitwise_and import bitwise_and
+from ntops.torch.copysign import copysign
+from ntops.torch.gcd import gcd
 from ntops.torch.bitwise_not import bitwise_not
 from ntops.torch.bitwise_or import bitwise_or
 from ntops.torch.bmm import bmm
@@ -18,7 +20,9 @@ from ntops.torch.gelu import gelu
 from ntops.torch.gt import gt
 from ntops.torch.isinf import isinf
 from ntops.torch.isnan import isnan
+from ntops.torch.lcm import lcm
 from ntops.torch.layer_norm import layer_norm
+from ntops.torch.lgamma import lgamma
 from ntops.torch.le import le
 from ntops.torch.lt import lt
 from ntops.torch.matmul import matmul
@@ -27,7 +31,9 @@ from ntops.torch.mm import mm
 from ntops.torch.mul import mul
 from ntops.torch.ne import ne
 from ntops.torch.neg import neg
+from ntops.torch.nextafter import nextafter
 from ntops.torch.pow import pow
+from ntops.torch.rad2deg import rad2deg
 from ntops.torch.relu import relu
 from ntops.torch.rms_norm import rms_norm
 from ntops.torch.rotary_position_embedding import rotary_position_embedding
@@ -39,6 +45,11 @@ from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
+from ntops.torch.eye import eye
+from ntops.torch.flatten import flatten
+from ntops.torch.chunk import chunk
+from ntops.torch.unbind import unbind
+from ntops.torch.repeat import repeat
 
 __all__ = [
     "abs",
@@ -47,8 +58,11 @@ __all__ = [
     "avg_pool2d",
     "bitwise_and",
     "bitwise_not",
+    "copysign",
+    "gcd",
     "bitwise_or",
     "bmm",
+    "chunk",
     "clamp",
     "conv2d",
     "cos",
@@ -56,12 +70,15 @@ __all__ = [
     "dropout",
     "eq",
     "exp",
+    "flatten",
     "ge",
     "gelu",
     "gt",
     "isinf",
     "isnan",
+    "lcm",
     "layer_norm",
+    "lgamma",
     "le",
     "lt",
     "matmul",
@@ -70,7 +87,10 @@ __all__ = [
     "mul",
     "ne",
     "neg",
+    "nextafter",
     "pow",
+    "rad2deg",
+    "repeat",
     "relu",
     "rms_norm",
     "rotary_position_embedding",
@@ -82,4 +102,6 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "unbind",
+    "eye",
 ]
