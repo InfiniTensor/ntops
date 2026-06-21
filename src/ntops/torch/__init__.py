@@ -6,6 +6,7 @@ from ntops.torch.bitwise_and import bitwise_and
 from ntops.torch.bitwise_not import bitwise_not
 from ntops.torch.bitwise_or import bitwise_or
 from ntops.torch.bmm import bmm
+from ntops.torch.cartesian_prod import cartesian_prod
 from ntops.torch.clamp import clamp
 from ntops.torch.conv2d import conv2d
 from ntops.torch.cos import cos
@@ -23,7 +24,9 @@ from ntops.torch.le import le
 from ntops.torch.lt import lt
 from ntops.torch.matmul import matmul
 from ntops.torch.max_pool2d import max_pool2d
+from ntops.torch.meshgrid import meshgrid
 from ntops.torch.mm import mm
+from ntops.torch.mode import mode
 from ntops.torch.mul import mul
 from ntops.torch.ne import ne
 from ntops.torch.neg import neg
@@ -39,6 +42,9 @@ from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
+# eye, flatten, chunk, unbind, repeat — source files not yet created
+from ntops.torch.roll import roll
+from ntops.torch.column_stack import column_stack
 
 __all__ = [
     "abs",
@@ -49,7 +55,10 @@ __all__ = [
     "bitwise_not",
     "bitwise_or",
     "bmm",
+    "cartesian_prod",
+    "chunk",
     "clamp",
+    "column_stack",
     "conv2d",
     "cos",
     "div",
@@ -66,11 +75,16 @@ __all__ = [
     "lt",
     "matmul",
     "max_pool2d",
+    "meshgrid",
     "mm",
+    "mode",
     "mul",
     "ne",
     "neg",
     "pow",
+    "rad2deg",
+    "repeat",
+    "roll",
     "relu",
     "rms_norm",
     "rotary_position_embedding",
