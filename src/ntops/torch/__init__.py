@@ -16,6 +16,9 @@ from ntops.torch.exp import exp
 from ntops.torch.ge import ge
 from ntops.torch.gelu import gelu
 from ntops.torch.gt import gt
+from ntops.torch.gumbel_softmax import gumbel_softmax
+from ntops.torch.hsplit import hsplit
+from ntops.torch.heaviside import heaviside
 from ntops.torch.isinf import isinf
 from ntops.torch.isnan import isnan
 from ntops.torch.layer_norm import layer_norm
@@ -36,6 +39,8 @@ from ntops.torch.scaled_dot_product_attention import scaled_dot_product_attentio
 from ntops.torch.sigmoid import sigmoid
 from ntops.torch.silu import silu
 from ntops.torch.sin import sin
+from ntops.torch.slice_scatter import slice_scatter
+from ntops.torch.slogdet import slogdet
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
@@ -58,7 +63,10 @@ __all__ = [
     "exp",
     "ge",
     "gelu",
+    "gumbel_softmax",
     "gt",
+    "heaviside",
+    "hsplit",
     "isinf",
     "isnan",
     "layer_norm",
@@ -79,6 +87,8 @@ __all__ = [
     "sigmoid",
     "silu",
     "sin",
+    "slice_scatter",
+    "slogdet",
     "softmax",
     "sub",
     "tanh",
