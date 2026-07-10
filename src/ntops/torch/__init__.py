@@ -28,12 +28,18 @@ from ntops.torch.mul import mul
 from ntops.torch.ne import ne
 from ntops.torch.neg import neg
 from ntops.torch.pow import pow
+from ntops.torch.quantile import quantile
 from ntops.torch.relu import relu
 from ntops.torch.rms_norm import rms_norm
+from ntops.torch.rot90 import rot90
 from ntops.torch.rotary_position_embedding import rotary_position_embedding
 from ntops.torch.rsqrt import rsqrt
 from ntops.torch.scaled_dot_product_attention import scaled_dot_product_attention
+from ntops.torch.select_copy import select_copy
+from ntops.torch.sgn import sgn
 from ntops.torch.sigmoid import sigmoid
+from ntops.torch.sign import sign
+from ntops.torch.signbit import signbit
 from ntops.torch.silu import silu
 from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
@@ -91,12 +97,18 @@ __all__ = [
     "ne",
     "neg",
     "pow",
+    "quantile",
     "relu",
     "rms_norm",
+    "rot90",
     "rotary_position_embedding",
     "rsqrt",
     "scaled_dot_product_attention",
+    "select_copy",
+    "sgn",
     "sigmoid",
+    "sign",
+    "signbit",
     "silu",
     "sin",
     "softmax",
