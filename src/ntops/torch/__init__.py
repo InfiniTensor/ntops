@@ -39,6 +39,11 @@ from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
+from ntops.torch.acosh import acosh
+from ntops.torch.adaptive_avg_pool2d import adaptive_avg_pool2d
+from ntops.torch.addmv import addmv
+from ntops.torch.argsort import argsort
+from ntops.torch.fmax import fmax
 from ntops.torch.logsumexp import logsumexp
 from ntops.torch.lp_pool1d import lp_pool1d
 from ntops.torch.lp_pool2d import lp_pool2d
@@ -87,6 +92,11 @@ __all__ = [
     "softmax",
     "sub",
     "tanh",
+    "acosh",
+    "adaptive_avg_pool2d",
+    "addmv",
+    "argsort",
+    "fmax",
     "logsumexp",
     "lp_pool1d",
     "lp_pool2d",
