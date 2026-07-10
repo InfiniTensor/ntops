@@ -1,6 +1,7 @@
 from ntops.torch.abs import abs
 from ntops.torch.add import add
 from ntops.torch.addmm import addmm
+from ntops.torch.alpha_dropout import alpha_dropout
 from ntops.torch.avg_pool2d import avg_pool2d
 from ntops.torch.bitwise_and import bitwise_and
 from ntops.torch.bitwise_not import bitwise_not
@@ -9,6 +10,8 @@ from ntops.torch.bmm import bmm
 from ntops.torch.clamp import clamp
 from ntops.torch.conv2d import conv2d
 from ntops.torch.cos import cos
+from ntops.torch.cosh import cosh
+from ntops.torch.diag import diag
 from ntops.torch.div import div
 from ntops.torch.dropout import dropout
 from ntops.torch.eq import eq
@@ -33,6 +36,7 @@ from ntops.torch.relu import relu
 from ntops.torch.rms_norm import rms_norm
 from ntops.torch.rot90 import rot90
 from ntops.torch.rotary_position_embedding import rotary_position_embedding
+from ntops.torch.round import round
 from ntops.torch.rsqrt import rsqrt
 from ntops.torch.scaled_dot_product_attention import scaled_dot_product_attention
 from ntops.torch.select_copy import select_copy
@@ -43,6 +47,7 @@ from ntops.torch.signbit import signbit
 from ntops.torch.silu import silu
 from ntops.torch.sin import sin
 from ntops.torch.softmax import softmax
+from ntops.torch.sort import sort
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
 from ntops.torch.max_pool1d import max_pool1d
@@ -70,6 +75,7 @@ __all__ = [
     "abs",
     "add",
     "addmm",
+    "alpha_dropout",
     "avg_pool2d",
     "bitwise_and",
     "bitwise_not",
@@ -78,6 +84,8 @@ __all__ = [
     "clamp",
     "conv2d",
     "cos",
+    "cosh",
+    "diag",
     "div",
     "dropout",
     "eq",
@@ -102,6 +110,7 @@ __all__ = [
     "rms_norm",
     "rot90",
     "rotary_position_embedding",
+    "round",
     "rsqrt",
     "scaled_dot_product_attention",
     "select_copy",
@@ -112,6 +121,7 @@ __all__ = [
     "silu",
     "sin",
     "softmax",
+    "sort",
     "sub",
     "tanh",    
     "max_pool1d",
