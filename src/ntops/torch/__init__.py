@@ -7,6 +7,7 @@ from ntops.torch.bitwise_and import bitwise_and
 from ntops.torch.bitwise_not import bitwise_not
 from ntops.torch.bitwise_or import bitwise_or
 from ntops.torch.bmm import bmm
+from ntops.torch.celu import celu
 from ntops.torch.clamp import clamp
 from ntops.torch.conv2d import conv2d
 from ntops.torch.cos import cos
@@ -19,6 +20,7 @@ from ntops.torch.exp import exp
 from ntops.torch.ge import ge
 from ntops.torch.gelu import gelu
 from ntops.torch.gt import gt
+from ntops.torch.instance_norm import instance_norm
 from ntops.torch.isinf import isinf
 from ntops.torch.isnan import isnan
 from ntops.torch.layer_norm import layer_norm
@@ -27,6 +29,7 @@ from ntops.torch.lt import lt
 from ntops.torch.matmul import matmul
 from ntops.torch.max_pool2d import max_pool2d
 from ntops.torch.mm import mm
+from ntops.torch.msort import msort
 from ntops.torch.mul import mul
 from ntops.torch.ne import ne
 from ntops.torch.neg import neg
@@ -50,6 +53,7 @@ from ntops.torch.softmax import softmax
 from ntops.torch.sort import sort
 from ntops.torch.sub import sub
 from ntops.torch.tanh import tanh
+from ntops.torch.threshold import threshold
 from ntops.torch.max_pool1d import max_pool1d
 from ntops.torch.max_pool3d import max_pool3d
 from ntops.torch.stack import stack
@@ -81,6 +85,7 @@ __all__ = [
     "bitwise_not",
     "bitwise_or",
     "bmm",
+    "celu",
     "clamp",
     "conv2d",
     "cos",
@@ -93,6 +98,7 @@ __all__ = [
     "ge",
     "gelu",
     "gt",
+    "instance_norm",
     "isinf",
     "isnan",
     "layer_norm",
@@ -101,6 +107,7 @@ __all__ = [
     "matmul",
     "max_pool2d",
     "mm",
+    "msort",
     "mul",
     "ne",
     "neg",
@@ -130,6 +137,7 @@ __all__ = [
     "mean",
     "median",
     "tanh",
+    "threshold",
     "maximum",
     "atan",
     "batch_norm",
