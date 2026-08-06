@@ -6,6 +6,7 @@ from ntops.torch.avg_pool2d import avg_pool2d
 from ntops.torch.bitwise_and import bitwise_and
 from ntops.torch.bitwise_not import bitwise_not
 from ntops.torch.bitwise_or import bitwise_or
+from ntops.torch.block_scaled_fp8_gemm import block_scaled_fp8_gemm
 from ntops.torch.bmm import bmm
 from ntops.torch.celu import celu
 from ntops.torch.clamp import clamp
@@ -17,6 +18,7 @@ from ntops.torch.div import div
 from ntops.torch.dropout import dropout
 from ntops.torch.eq import eq
 from ntops.torch.exp import exp
+from ntops.torch.gated_rmsnorm import gated_rmsnorm
 from ntops.torch.ge import ge
 from ntops.torch.gelu import gelu
 from ntops.torch.gt import gt
@@ -28,9 +30,11 @@ from ntops.torch.le import le
 from ntops.torch.lt import lt
 from ntops.torch.matmul import matmul
 from ntops.torch.max_pool2d import max_pool2d
+from ntops.torch.mla_rope_kv_cache import mla_rope_kv_cache
 from ntops.torch.mm import mm
 from ntops.torch.msort import msort
 from ntops.torch.mul import mul
+from ntops.torch.mxfp4_grouped_gemm import mxfp4_grouped_gemm
 from ntops.torch.ne import ne
 from ntops.torch.neg import neg
 from ntops.torch.pow import pow
@@ -84,6 +88,7 @@ __all__ = [
     "bitwise_and",
     "bitwise_not",
     "bitwise_or",
+    "block_scaled_fp8_gemm",
     "bmm",
     "celu",
     "clamp",
@@ -95,6 +100,7 @@ __all__ = [
     "dropout",
     "eq",
     "exp",
+    "gated_rmsnorm",
     "ge",
     "gelu",
     "gt",
@@ -106,9 +112,11 @@ __all__ = [
     "lt",
     "matmul",
     "max_pool2d",
+    "mla_rope_kv_cache",
     "mm",
     "msort",
     "mul",
+    "mxfp4_grouped_gemm",
     "ne",
     "neg",
     "pow",
@@ -130,7 +138,7 @@ __all__ = [
     "softmax",
     "sort",
     "sub",
-    "tanh",    
+    "tanh",
     "max_pool1d",
     "max_pool3d",
     "stack",
