@@ -37,6 +37,7 @@ from ntops.torch.pow import pow
 from ntops.torch.quantile import quantile
 from ntops.torch.relu import relu
 from ntops.torch.rms_norm import rms_norm
+from ntops.torch.rms_norm_gated import rms_norm_gated
 from ntops.torch.rot90 import rot90
 from ntops.torch.rotary_position_embedding import rotary_position_embedding
 from ntops.torch.round import round
@@ -117,6 +118,7 @@ __all__ = [
     "quantile",
     "relu",
     "rms_norm",
+    "rms_norm_gated",
     "rot90",
     "rotary_position_embedding",
     "round",
