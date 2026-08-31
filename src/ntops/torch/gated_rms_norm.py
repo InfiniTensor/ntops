@@ -7,14 +7,17 @@ from ntops.torch.utils import _cached_make
 
 def gated_rms_norm(
     input,
-    gate,
-    weight,
+    gate=None,
+    weight=None,
     eps=1e-5,
     group_size=None,
     norm_before_gate=False,
     activation="swish",
 ):
-    if input.shape != gate.shape:
+    if weight is None:
+        raise ValueError("`weight` must be provided.")
+
+    if gate is not None and input.shape != gate.shape:
         raise ValueError("`input` and `gate` must have the same shape.")
 
     hidden_size = input.shape[-1]
@@ -43,24 +46,28 @@ def gated_rms_norm(
 
     grouped_shape = input.shape[:-1] + (hidden_size // group_size, group_size)
     grouped_input = input.reshape(grouped_shape)
-    grouped_gate = gate.reshape(grouped_shape)
+    grouped_gate = None if gate is None else gate.reshape(grouped_shape)
     grouped_weight = weight.expand_as(input).reshape(grouped_shape)
     grouped_output = torch.empty_like(grouped_input)
 
     kernel = _cached_make(
         ntops.kernels.gated_rms_norm.premake,
         grouped_input.ndim,
+        has_gate=gate is not None,
         norm_before_gate=norm_before_gate,
         activation=activation_variant,
         block_size=1 << (group_size - 1).bit_length(),
     )
-    kernel(
-        grouped_input,
-        grouped_gate,
-        grouped_weight,
-        eps,
-        grouped_output,
-        group_size,
-    )
+    if gate is None:
+        kernel(grouped_input, grouped_weight, eps, grouped_output, group_size)
+    else:
+        kernel(
+            grouped_input,
+            grouped_gate,
+            grouped_weight,
+            eps,
+            grouped_output,
+            group_size,
+        )
 
     return grouped_output.reshape(input.shape)

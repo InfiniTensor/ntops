@@ -53,6 +53,12 @@ def application_norm_after_sigmoid(
     output[0] = value / rms * weight[0].to(ntl.float32)
 
 
+def application_norm_only(input, weight, eps, output, num_normalized_elements):
+    value = input[0].to(ntl.float32)
+    rms = ntl.sqrt(ntl.sum(value * value, axis=0) / num_normalized_elements + eps)
+    output[0] = value / rms * weight[0].to(ntl.float32)
+
+
 def premake(
     ndim,
     norm_before_gate=False,
@@ -62,10 +68,13 @@ def premake(
     weight_dtype=None,
     output_dtype=None,
     block_size=None,
+    has_gate=True,
 ):
     arrangement_ = functools.partial(arrangement, dim=-1, block_size=block_size)
 
-    if norm_before_gate:
+    if not has_gate:
+        application = application_norm_only
+    elif norm_before_gate:
         if activation == ActivationVariant.SIGMOID:
             application = application_norm_before_sigmoid
         else:
@@ -75,13 +84,22 @@ def premake(
     else:
         application = application_norm_after_silu
 
-    tensors = (
-        Tensor(ndim, other=0, dtype=input_dtype),
-        Tensor(ndim, other=0, dtype=gate_dtype),
-        Tensor(ndim, dtype=weight_dtype),
-        Tensor(0, dtype=ninetoothed.float64),
-        Tensor(ndim, dtype=output_dtype),
-        Tensor(0, constexpr=True),
-    )
+    if has_gate:
+        tensors = (
+            Tensor(ndim, other=0, dtype=input_dtype),
+            Tensor(ndim, other=0, dtype=gate_dtype),
+            Tensor(ndim, dtype=weight_dtype),
+            Tensor(0, dtype=ninetoothed.float64),
+            Tensor(ndim, dtype=output_dtype),
+            Tensor(0, constexpr=True),
+        )
+    else:
+        tensors = (
+            Tensor(ndim, other=0, dtype=input_dtype),
+            Tensor(ndim, dtype=weight_dtype),
+            Tensor(0, dtype=ninetoothed.float64),
+            Tensor(ndim, dtype=output_dtype),
+            Tensor(0, constexpr=True),
+        )
 
     return arrangement_, application, tensors
