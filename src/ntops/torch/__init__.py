@@ -18,6 +18,7 @@ from ntops.torch.dropout import dropout
 from ntops.torch.eq import eq
 from ntops.torch.exp import exp
 from ntops.torch.ge import ge
+from ntops.torch.gated_rms_norm import gated_rms_norm
 from ntops.torch.gelu import gelu
 from ntops.torch.gt import gt
 from ntops.torch.instance_norm import instance_norm
@@ -96,6 +97,7 @@ __all__ = [
     "eq",
     "exp",
     "ge",
+    "gated_rms_norm",
     "gelu",
     "gt",
     "instance_norm",
