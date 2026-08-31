@@ -37,11 +37,13 @@ from ntops.kernels import (
     quantile,
     relu,
     rms_norm,
+    rms_norm_gated,
     rot90,
     rotary_position_embedding,
     round,
     rsqrt,
     scaled_dot_product_attention,
+    scaled_mm,
     select_copy,
     sgn,
     sigmoid,
@@ -74,6 +76,8 @@ from ntops.kernels import (
     lp_pool2d,
     lp_pool3d,
     max,
+    mxfp4_grouped_gemm,
+    mla_rope_cache,
 )
 
 __all__ = [
@@ -115,11 +119,13 @@ __all__ = [
     "quantile",
     "relu",
     "rms_norm",
+    "rms_norm_gated",
     "rot90",
     "rotary_position_embedding",
     "round",
     "rsqrt",
     "scaled_dot_product_attention",
+    "scaled_mm",
     "select_copy",
     "sgn",
     "sigmoid",
@@ -152,4 +158,6 @@ __all__ = [
     "lp_pool2d",
     "lp_pool3d",
     "max",
+    "mxfp4_grouped_gemm",
+    "mla_rope_cache",
 ]

@@ -37,11 +37,13 @@ from ntops.torch.pow import pow
 from ntops.torch.quantile import quantile
 from ntops.torch.relu import relu
 from ntops.torch.rms_norm import rms_norm
+from ntops.torch.rms_norm_gated import rms_norm_gated
 from ntops.torch.rot90 import rot90
 from ntops.torch.rotary_position_embedding import rotary_position_embedding
 from ntops.torch.round import round
 from ntops.torch.rsqrt import rsqrt
 from ntops.torch.scaled_dot_product_attention import scaled_dot_product_attention
+from ntops.torch.scaled_mm import _scaled_mm, scaled_mm
 from ntops.torch.select_copy import select_copy
 from ntops.torch.sgn import sgn
 from ntops.torch.sigmoid import sigmoid
@@ -74,6 +76,8 @@ from ntops.torch.lp_pool1d import lp_pool1d
 from ntops.torch.lp_pool2d import lp_pool2d
 from ntops.torch.lp_pool3d import lp_pool3d
 from ntops.torch.max import max
+from ntops.torch.mla_rope_cache import mla_rope_cache
+from ntops.torch.mxfp4_grouped_gemm import mxfp4_grouped_gemm
 
 __all__ = [
     "abs",
@@ -115,11 +119,14 @@ __all__ = [
     "quantile",
     "relu",
     "rms_norm",
+    "rms_norm_gated",
     "rot90",
     "rotary_position_embedding",
     "round",
     "rsqrt",
     "scaled_dot_product_attention",
+    "_scaled_mm",
+    "scaled_mm",
     "select_copy",
     "sgn",
     "sigmoid",
@@ -153,4 +160,6 @@ __all__ = [
     "lp_pool2d",
     "lp_pool3d",
     "max",
+    "mla_rope_cache",
+    "mxfp4_grouped_gemm",
 ]
