@@ -77,6 +77,7 @@ from ntops.kernels import (
     lp_pool3d,
     max,
     mxfp4_grouped_gemm,
+    mla_rope_cache,
 )
 
 __all__ = [
@@ -158,4 +159,5 @@ __all__ = [
     "lp_pool3d",
     "max",
     "mxfp4_grouped_gemm",
+    "mla_rope_cache",
 ]

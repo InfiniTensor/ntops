@@ -76,6 +76,7 @@ from ntops.torch.lp_pool1d import lp_pool1d
 from ntops.torch.lp_pool2d import lp_pool2d
 from ntops.torch.lp_pool3d import lp_pool3d
 from ntops.torch.max import max
+from ntops.torch.mla_rope_cache import mla_rope_cache
 from ntops.torch.mxfp4_grouped_gemm import mxfp4_grouped_gemm
 
 __all__ = [
@@ -159,5 +160,6 @@ __all__ = [
     "lp_pool2d",
     "lp_pool3d",
     "max",
+    "mla_rope_cache",
     "mxfp4_grouped_gemm",
 ]
