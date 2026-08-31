@@ -4,6 +4,12 @@ import ntops
 from ntops.kernels.gated_rms_norm import ActivationVariant
 from ntops.torch.utils import _cached_make
 
+_ACTIVATION_VARIANTS = {
+    "silu": ActivationVariant.SILU,
+    "swish": ActivationVariant.SILU,
+    "sigmoid": ActivationVariant.SIGMOID,
+}
+
 
 def gated_rms_norm(
     input,
@@ -20,7 +26,9 @@ def gated_rms_norm(
     if gate is not None and input.shape != gate.shape:
         raise ValueError("`input` and `gate` must have the same shape.")
 
-    hidden_size = input.shape[-1]
+    input_shape = input.shape
+    prefix = input_shape[:-1]
+    hidden_size = input_shape[-1]
 
     if weight.shape != (hidden_size,):
         raise ValueError("`weight` must have shape `(input.shape[-1],)`.")
@@ -31,24 +39,17 @@ def gated_rms_norm(
     if group_size <= 0 or hidden_size % group_size != 0:
         raise ValueError("`group_size` must be a positive divisor of the hidden size.")
 
-    activation_variants = {
-        "silu": ActivationVariant.SILU,
-        "swish": ActivationVariant.SILU,
-        "sigmoid": ActivationVariant.SIGMOID,
-    }
-
     try:
-        activation_variant = activation_variants[activation]
+        activation_variant = _ACTIVATION_VARIANTS[activation]
     except KeyError as error:
         raise ValueError(
             "`activation` must be one of `silu`, `swish`, or `sigmoid`."
         ) from error
 
-    grouped_shape = input.shape[:-1] + (hidden_size // group_size, group_size)
+    num_groups = hidden_size // group_size
+    grouped_shape = prefix + (num_groups, group_size)
     grouped_input = input.reshape(grouped_shape)
     grouped_gate = None if gate is None else gate.reshape(grouped_shape)
-    prefix = input.shape[:-1]
-    num_groups = hidden_size // group_size
     grouped_weight = weight.reshape((1,) * len(prefix) + (num_groups, group_size))
     grouped_weight = grouped_weight.expand(grouped_shape)
     grouped_output = torch.empty_like(grouped_input)
@@ -73,4 +74,4 @@ def gated_rms_norm(
             group_size,
         )
 
-    return grouped_output.reshape(input.shape)
+    return grouped_output.reshape(input_shape)
