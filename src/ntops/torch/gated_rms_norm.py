@@ -47,7 +47,10 @@ def gated_rms_norm(
     grouped_shape = input.shape[:-1] + (hidden_size // group_size, group_size)
     grouped_input = input.reshape(grouped_shape)
     grouped_gate = None if gate is None else gate.reshape(grouped_shape)
-    grouped_weight = weight.expand_as(input).reshape(grouped_shape)
+    prefix = input.shape[:-1]
+    num_groups = hidden_size // group_size
+    grouped_weight = weight.reshape((1,) * len(prefix) + (num_groups, group_size))
+    grouped_weight = grouped_weight.expand(grouped_shape)
     grouped_output = torch.empty_like(grouped_input)
 
     kernel = _cached_make(
