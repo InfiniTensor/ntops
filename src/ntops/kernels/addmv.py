@@ -23,7 +23,7 @@ def arrangement(
 
     # 关键：强制 block_size_n 为 1，因为这是 MV 乘法
     if block_size_n is None:
-        block_size_n = 1 
+        block_size_n = 1
 
     if block_size_k is None:
         block_size_k = mm.BLOCK_SIZE_K
@@ -68,7 +68,7 @@ def application(input, mat, vec, beta, alpha, output, input_precision):
     # 这里 output 是 (M, 1)，zeros 也创建 (M, 1)
     mm_output = ntl.zeros(output.shape, dtype=ntl.float32)
     mm.application(mat, vec, mm_output, input_precision)
-    
+
     # 逐元素操作，形状兼容 (M, 1)
     output = beta * input + alpha * mm_output
 

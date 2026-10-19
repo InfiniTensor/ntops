@@ -43,4 +43,6 @@ def test_lp_pool1d(norm_type, ceil_mode, use_stride):
         ceil_mode=ceil_mode,
     )
 
-    assert torch.allclose(ntops_output, reference_output, atol=1e-3, rtol=1e-3, equal_nan=True)
+    assert torch.allclose(
+        ntops_output, reference_output, atol=1e-3, rtol=1e-3, equal_nan=True
+    )

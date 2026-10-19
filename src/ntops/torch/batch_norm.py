@@ -1,7 +1,8 @@
-import math
 import torch
+
 import ntops
 from ntops.torch.utils import _cached_make
+
 
 def batch_norm(input, weight=None, bias=None, eps=1e-5, training=True):
     ndim = input.ndim
@@ -11,7 +12,7 @@ def batch_norm(input, weight=None, bias=None, eps=1e-5, training=True):
     # 假设 dim=1 是 Channel，其余为 Batch 和 Spatial
     channel_dim = 1
     reduction_dims = tuple(d for d in range(ndim) if d != channel_dim)
-    
+
     num_elements = 1
     for d in reduction_dims:
         num_elements *= input.shape[d]
@@ -33,10 +34,7 @@ def batch_norm(input, weight=None, bias=None, eps=1e-5, training=True):
     output = torch.empty_like(input)
 
     kernel = _cached_make(
-        ntops.kernels.batch_norm.premake, 
-        ndim, 
-        reduction_dims, 
-        num_elements
+        ntops.kernels.batch_norm.premake, ndim, reduction_dims, num_elements
     )
 
     kernel(input, weight_expanded, bias_expanded, eps, output, num_elements)

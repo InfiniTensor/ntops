@@ -1,9 +1,10 @@
-import random
 import pytest
 import torch
+
 import ntops
 from tests.skippers import skip_if_cuda_not_available
 from tests.utils import generate_arguments
+
 
 @skip_if_cuda_not_available
 @pytest.mark.parametrize(*generate_arguments())
@@ -14,7 +15,7 @@ def test_fmax_elementwise(shape, dtype, device, rtol, atol):
 
     # ntops 实现
     ntops_result = ntops.torch.fmax(input_tensor, other_tensor)
-    
+
     # PyTorch 参考实现 (torch.fmax 或 torch.maximum)
     # torch.fmax: 忽略 NaN
     # torch.maximum: 传播 NaN
@@ -23,6 +24,7 @@ def test_fmax_elementwise(shape, dtype, device, rtol, atol):
 
     assert torch.allclose(ntops_result, reference_result, rtol=rtol, atol=atol)
 
+
 @skip_if_cuda_not_available
 @pytest.mark.parametrize("dtype", [torch.float32, torch.float16])
 def test_fmax_broadcasting(dtype):
@@ -30,7 +32,7 @@ def test_fmax_broadcasting(dtype):
     device = "cuda"
     shape_a = (4, 1, 32)
     shape_b = (1, 64, 32)
-    
+
     input_tensor = torch.randn(shape_a, dtype=dtype, device=device)
     other_tensor = torch.randn(shape_b, dtype=dtype, device=device)
 

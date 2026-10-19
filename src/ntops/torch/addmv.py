@@ -6,7 +6,7 @@ from ntops.torch.utils import _cached_make, _get_matmul_input_precision
 
 def addmv(input, mat, vec, *, beta=1, alpha=1, out=None):
     m, k = mat.shape
-    
+
     if vec.shape[0] != k:
         raise RuntimeError(f"size mismatch, got {vec.shape[0]}, expected {k}")
 

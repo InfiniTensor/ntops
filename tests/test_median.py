@@ -1,9 +1,12 @@
 import random
+
 import pytest
 import torch
+
 import ntops
 from tests.skippers import skip_if_cuda_not_available
 from tests.utils import _random_shape
+
 
 def generate_median_args():
     args = []
@@ -16,7 +19,7 @@ def generate_median_args():
             for _ in range(5):
                 shape = _random_shape(ndim)
                 dim = random.randint(0, ndim - 1)
-                
+
                 # 限制 dim_size，原因同 argsort
                 if shape[dim] > 128:
                     shape_list = list(shape)
@@ -26,6 +29,7 @@ def generate_median_args():
                 args.append((shape, dim, dtype, device, rtol, atol))
     return "shape, dim, dtype, device, rtol, atol", args
 
+
 @skip_if_cuda_not_available
 @pytest.mark.parametrize(*generate_median_args())
 def test_median(shape, dim, dtype, device, rtol, atol):
@@ -33,7 +37,7 @@ def test_median(shape, dim, dtype, device, rtol, atol):
 
     # 1. 调用 ntops 实现
     ntops_vals, ntops_idxs = ntops.torch.median(input_tensor, dim=dim, keepdim=False)
-    
+
     # 2. 调用 PyTorch 参考实现
     ref_vals, ref_idxs = torch.median(input_tensor, dim=dim, keepdim=False)
 
@@ -44,8 +48,12 @@ def test_median(shape, dim, dtype, device, rtol, atol):
     # 4. 验证索引 (Indices)
     # 注意：如果有重复值，median 的 index 可能不唯一。
     # 更稳健的测试方法是：用 ntops 返回的 index 去 input 取值，看取出来的值是否等于 ref_val
-    gathered_vals = torch.gather(input_tensor, dim, ntops_idxs.unsqueeze(dim)).squeeze(dim)
-    assert torch.allclose(gathered_vals, ref_vals, rtol=rtol, atol=atol), "Gathered values from indices mismatch"
-    
+    gathered_vals = torch.gather(input_tensor, dim, ntops_idxs.unsqueeze(dim)).squeeze(
+        dim
+    )
+    assert torch.allclose(gathered_vals, ref_vals, rtol=rtol, atol=atol), (
+        "Gathered values from indices mismatch"
+    )
+
     # 如果数据没有重复值，可以直接比较 index (可选)
     # assert torch.equal(ntops_idxs, ref_idxs)

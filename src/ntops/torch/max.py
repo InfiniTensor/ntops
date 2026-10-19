@@ -1,10 +1,10 @@
+import math
+
 import torch
 
 import ntops
-import ninetoothed
 from ntops.torch.utils import _cached_make
-import builtins
-import math
+
 
 def max(input, dim: int | None = None, keepdim=False, *, out=None):
     if dim is None:
@@ -14,17 +14,24 @@ def max(input, dim: int | None = None, keepdim=False, *, out=None):
         block_size = 1024
         while current.numel() > 1:
             output_shape = (math.ceil(current.numel() / block_size),)
-            output = torch.empty(output_shape, dtype=current.dtype, device=current.device)
-            kernel = _cached_make(ntops.kernels.max.premake_all_elements, current.ndim, current.dtype, block_size)
+            output = torch.empty(
+                output_shape, dtype=current.dtype, device=current.device
+            )
+            kernel = _cached_make(
+                ntops.kernels.max.premake_all_elements,
+                current.ndim,
+                current.dtype,
+                block_size,
+            )
             kernel(current, output)
             current = output
-        
+
         result = current.view(())
-        
+
         if out is not None:
             out.copy_(result)
             return out
-        
+
         return result
     else:
         output_shape = list(input.shape)
