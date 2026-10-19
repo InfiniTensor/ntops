@@ -10,9 +10,11 @@ def _exp(x, dtype):
     exp_dtype = dtype if dtype != ntl.float16 else ntl.float32
     return ntl.cast(ntl.exp(ntl.cast(x, exp_dtype)), dtype)
 
+
 def _log(x, dtype):
     log_dtype = dtype if dtype != ntl.float16 else ntl.float32
     return ntl.cast(ntl.log(ntl.cast(x, log_dtype)), dtype)
+
 
 def application(input, output):
     # input&output: (C // block_size, )

@@ -18,8 +18,12 @@ def test_max_dim(shape, dtype, device, rtol, atol, keepdim):
     if random.choice((True, False)):
         dim = dim - input_tensor.ndim
 
-    ntops_values, ntops_indices = ntops.torch.max(input_tensor, dim=dim, keepdim=keepdim)
-    reference_values, reference_indices = torch.max(input_tensor, dim=dim, keepdim=keepdim)
+    ntops_values, ntops_indices = ntops.torch.max(
+        input_tensor, dim=dim, keepdim=keepdim
+    )
+    reference_values, reference_indices = torch.max(
+        input_tensor, dim=dim, keepdim=keepdim
+    )
 
     assert torch.allclose(ntops_values, reference_values, rtol=rtol, atol=atol)
     assert torch.equal(ntops_indices, reference_indices)

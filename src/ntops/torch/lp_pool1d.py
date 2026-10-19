@@ -1,4 +1,5 @@
 import math
+
 import torch
 
 import ntops
@@ -49,7 +50,7 @@ def lp_pool1d(input, norm_type, kernel_size, stride=None, ceil_mode=False):
         stride,
         ceil_mode=ceil_mode,
         dtype=input.dtype,
-        block_size=block_size
+        block_size=block_size,
     )
 
     kernel(input, output, norm_type, kernel_size)

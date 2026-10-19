@@ -2,7 +2,6 @@ import functools
 
 import ninetoothed
 import ninetoothed.language as ntl
-import math
 from ninetoothed import Tensor
 
 from ntops.kernels.reduction import arrangement
@@ -34,10 +33,11 @@ def premake(ndim, dim, dtype=None, block_size=None):
             ndim, dtype=dtype, other=float("-inf"), shape_options={"constexpr": True}
         ),
         Tensor(ndim, dtype=dtype),
-        Tensor(ndim, dtype=ninetoothed.int32)
+        Tensor(ndim, dtype=ninetoothed.int32),
     )
 
     return arrangement_, application, tensors
+
 
 def arrangement_all_elements(input, output, block_size=None):
     if block_size is None:
@@ -47,14 +47,18 @@ def arrangement_all_elements(input, output, block_size=None):
     output = output.tile((1,))
     return input, output
 
+
 def application_all_elements(input, output):
     output[0] = ntl.max(input, 0)
+
 
 def premake_all_elements(ndim, dtype=None, block_size=None):
     arrangement_ = functools.partial(arrangement_all_elements, block_size=block_size)
 
     tensors = (
-        Tensor(ndim, dtype=dtype, other=float("-inf"), shape_options={"constexpr": True}),
+        Tensor(
+            ndim, dtype=dtype, other=float("-inf"), shape_options={"constexpr": True}
+        ),
         Tensor(1, dtype=dtype),
     )
 

@@ -30,7 +30,9 @@ def application(input, values, indices, sort_size, descending):
     encoded = ntl.where(valid, encoded, ntl.cast(0x7FFFFFFF, ntl.int32))
 
     offsets = ntl.cast(offsets, ntl.int64)
-    key = ((ntl.cast(encoded, ntl.int64) & ntl.cast(0xFFFFFFFF, ntl.int64)) << 32) | offsets
+    key = (
+        (ntl.cast(encoded, ntl.int64) & ntl.cast(0xFFFFFFFF, ntl.int64)) << 32
+    ) | offsets
     sorted_key = ntl.sort(key)
 
     sorted_encoded = ntl.cast(sorted_key >> 32, ntl.int32)

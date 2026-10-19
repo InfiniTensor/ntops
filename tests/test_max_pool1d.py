@@ -1,17 +1,20 @@
 import random
+
 import pytest
 import torch
+
 import ntops
 from tests.skippers import skip_if_cuda_not_available
+
 
 @skip_if_cuda_not_available
 @pytest.mark.parametrize("ceil_mode", [False, True])
 @pytest.mark.parametrize("padding", [0, 1, 2])
-@pytest.mark.parametrize("kernel_stride", [(2, 2), (3, 2), (3, 1)]) # (kernel, stride)
+@pytest.mark.parametrize("kernel_stride", [(2, 2), (3, 2), (3, 1)])  # (kernel, stride)
 def test_max_pool1d(ceil_mode, padding, kernel_stride):
     device = "cuda"
     dtype = torch.float32
-    
+
     kernel_size, stride = kernel_stride
 
     batch = random.randint(1, 4)
@@ -27,7 +30,7 @@ def test_max_pool1d(ceil_mode, padding, kernel_stride):
             kernel_size=kernel_size,
             stride=stride,
             padding=padding,
-            ceil_mode=ceil_mode
+            ceil_mode=ceil_mode,
         )
     except Exception as e:
         # 某些极端情况下的尺寸计算可能会导致 torch 原生报错，
@@ -41,7 +44,7 @@ def test_max_pool1d(ceil_mode, padding, kernel_stride):
             kernel_size=kernel_size,
             stride=stride,
             padding=padding,
-            ceil_mode=ceil_mode
+            ceil_mode=ceil_mode,
         )
     except RuntimeError:
         # 如果 Torch 因为输出尺寸计算报错 (例如 padding 此时过大导致 L_out < 0 等)，

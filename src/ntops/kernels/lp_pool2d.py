@@ -2,16 +2,18 @@ import functools
 
 import ninetoothed
 import ninetoothed.language as ntl
-from ninetoothed.language import libdevice
 from ninetoothed import Tensor
-from ninetoothed import Symbol
+from ninetoothed.language import libdevice
 
 
 def _pow(x, norm, dtype):
     pow_dtype = dtype if dtype != ntl.float16 else ntl.float32
     return ntl.cast(libdevice.pow(ntl.cast(x, pow_dtype), norm), dtype)
 
-def arrangement_ceil_mode(*tensors, kernel_size_h, kernel_size_w, stride_h, stride_w, block_size, ceil_mode):
+
+def arrangement_ceil_mode(
+    *tensors, kernel_size_h, kernel_size_w, stride_h, stride_w, block_size, ceil_mode
+):
     input, output, norm_type, kernel_size_flatted = tensors
     if block_size is None:
         block_size = ninetoothed.block_size()
@@ -19,7 +21,11 @@ def arrangement_ceil_mode(*tensors, kernel_size_h, kernel_size_w, stride_h, stri
     # input: (N, C, H_in, W_in) output: (N, C, H_out, W_out)
     # ref. example 里的 max_pool2d arrangement
 
-    input_arranged = input.tile((1, 1, kernel_size_h, kernel_size_w), (1, 1, stride_h, stride_w), floor_mode=not ceil_mode)
+    input_arranged = input.tile(
+        (1, 1, kernel_size_h, kernel_size_w),
+        (1, 1, stride_h, stride_w),
+        floor_mode=not ceil_mode,
+    )
     # => (N, C, H_out, W_out), dtype=(1, 1, k_h, k_w)
     input_arranged = input_arranged.ravel()
     # => (N, C, H_out, W_out, 1, 1, k_h, k_w)
@@ -36,19 +42,18 @@ def arrangement_ceil_mode(*tensors, kernel_size_h, kernel_size_w, stride_h, stri
     input_arranged.dtype = input_arranged.dtype.ravel().squeeze(1)
     # => (..., 1), dtype=(block_size, nearest_pow2)
 
-    output_arranged = output.tile((1, 1, 1, 1)) 
+    output_arranged = output.tile((1, 1, 1, 1))
     # => (N, C, H_out, W_out), dtype=(1, 1, 1, 1)
     output_arranged = output_arranged.ravel()
     # => (N, C, H_out, W_out, 1, 1, 1, 1)
     output_arranged = output_arranged.flatten(end_dim=4).flatten(start_dim=1)
     # => (N*C*H_out*W_out, 1)
-    output_arranged = output_arranged.tile((block_size, -1)) 
+    output_arranged = output_arranged.tile((block_size, -1))
     # => (..., 1), dtype=(block_size, 1)
-    output_arranged.dtype = output_arranged.dtype.squeeze(1) 
+    output_arranged.dtype = output_arranged.dtype.squeeze(1)
     # => (..., 1), dtype=(block_size, )
 
     return input_arranged, output_arranged, norm_type, kernel_size_flatted
-
 
 
 def application_ceil_mode(input, output, norm_type, kernel_size_flatted):
@@ -72,10 +77,19 @@ def application_ceil_mode(input, output, norm_type, kernel_size_flatted):
     input_masked = ntl.where(~mask, 0, input)
     x_pow = _pow(input_masked, norm_type, dtype)
     acc_sim = ntl.sum(x_pow, 1) / cnt * kernel_size_flatted
-    output = _pow(acc_sim, 1.0 / norm_type, dtype)
+    output = _pow(acc_sim, 1.0 / norm_type, dtype)  # noqa: F841
 
 
-def premake_ceil_mode(ndim, kernel_size_h, kernel_size_w, stride_h, stride_w, block_size=None, ceil_mode=False, dtype=None):
+def premake_ceil_mode(
+    ndim,
+    kernel_size_h,
+    kernel_size_w,
+    stride_h,
+    stride_w,
+    block_size=None,
+    ceil_mode=False,
+    dtype=None,
+):
     arrangement_ = functools.partial(
         arrangement_ceil_mode,
         kernel_size_h=kernel_size_h,
@@ -87,24 +101,37 @@ def premake_ceil_mode(ndim, kernel_size_h, kernel_size_w, stride_h, stride_w, bl
     )
 
     tensors = (
-        Tensor(ndim, dtype=dtype, other=float("inf")),     # input
-        Tensor(ndim, dtype=dtype),              # output
-        Tensor(0, dtype=dtype),                 # norm_type
-        Tensor(0, dtype=dtype),                 # kernel_size_flatted
+        Tensor(ndim, dtype=dtype, other=float("inf")),  # input
+        Tensor(ndim, dtype=dtype),  # output
+        Tensor(0, dtype=dtype),  # norm_type
+        Tensor(0, dtype=dtype),  # kernel_size_flatted
     )
 
     return arrangement_, application_ceil_mode, tensors
 
 
-
-def arrangement(input, output, norm_type, kernel_size_h, kernel_size_w, stride_h, stride_w, block_size, ceil_mode):
+def arrangement(
+    input,
+    output,
+    norm_type,
+    kernel_size_h,
+    kernel_size_w,
+    stride_h,
+    stride_w,
+    block_size,
+    ceil_mode,
+):
     if block_size is None:
         block_size = ninetoothed.block_size()
 
     # input: (N, C, H_in, W_in) output: (N, C, H_out, W_out)
     # ref. example 里的 max_pool2d arrangement
 
-    input_arranged = input.tile((1, 1, kernel_size_h, kernel_size_w), (1, 1, stride_h, stride_w), floor_mode=not ceil_mode)
+    input_arranged = input.tile(
+        (1, 1, kernel_size_h, kernel_size_w),
+        (1, 1, stride_h, stride_w),
+        floor_mode=not ceil_mode,
+    )
     # => (N, C, H_out, W_out), dtype=(1, 1, k_h, k_w)
     input_arranged = input_arranged.ravel()
     # => (N, C, H_out, W_out, 1, 1, k_h, k_w)
@@ -121,18 +148,19 @@ def arrangement(input, output, norm_type, kernel_size_h, kernel_size_w, stride_h
     input_arranged.dtype = input_arranged.dtype.ravel().squeeze(1)
     # => (..., 1), dtype=(block_size, nearest_pow2)
 
-    output_arranged = output.tile((1, 1, 1, 1)) 
+    output_arranged = output.tile((1, 1, 1, 1))
     # => (N, C, H_out, W_out), dtype=(1, 1, 1, 1)
     output_arranged = output_arranged.ravel()
     # => (N, C, H_out, W_out, 1, 1, 1, 1)
     output_arranged = output_arranged.flatten(end_dim=4).flatten(start_dim=1)
     # => (N*C*H_out*W_out, 1)
-    output_arranged = output_arranged.tile((block_size, -1)) 
+    output_arranged = output_arranged.tile((block_size, -1))
     # => (..., 1), dtype=(block_size, 1)
-    output_arranged.dtype = output_arranged.dtype.squeeze(1) 
+    output_arranged.dtype = output_arranged.dtype.squeeze(1)
     # => (..., 1), dtype=(block_size, )
 
     return input_arranged, output_arranged, norm_type
+
 
 def application(input, output, norm_type):
     # input: (block_size, nearest_pow2)
@@ -140,10 +168,19 @@ def application(input, output, norm_type):
     dtype = input.dtype
     x_pow = _pow(input, norm_type, dtype)
     acc = ntl.sum(x_pow, axis=1)
-    output = _pow(acc, 1.0 / norm_type, dtype)
+    output = _pow(acc, 1.0 / norm_type, dtype)  # noqa: F841
 
 
-def premake(ndim, kernel_size_h, kernel_size_w, stride_h, stride_w, block_size=None, ceil_mode=False, dtype=None):
+def premake(
+    ndim,
+    kernel_size_h,
+    kernel_size_w,
+    stride_h,
+    stride_w,
+    block_size=None,
+    ceil_mode=False,
+    dtype=None,
+):
     arrangement_ = functools.partial(
         arrangement,
         kernel_size_h=kernel_size_h,
@@ -155,9 +192,9 @@ def premake(ndim, kernel_size_h, kernel_size_w, stride_h, stride_w, block_size=N
     )
 
     tensors = (
-        Tensor(ndim, dtype=dtype, other=0),     # input
-        Tensor(ndim, dtype=dtype),              # output
-        Tensor(0, dtype=dtype),                 # norm_type
+        Tensor(ndim, dtype=dtype, other=0),  # input
+        Tensor(ndim, dtype=dtype),  # output
+        Tensor(0, dtype=dtype),  # norm_type
     )
 
     return arrangement_, application, tensors

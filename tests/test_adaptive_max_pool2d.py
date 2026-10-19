@@ -1,8 +1,11 @@
 import random
+
 import pytest
 import torch
+
 import ntops
 from tests.skippers import skip_if_cuda_not_available
+
 
 @skip_if_cuda_not_available
 @pytest.mark.parametrize("output_size", [(1, 1), (2, 2), (3, 3), (5, 7)])
@@ -18,18 +21,16 @@ def test_adaptive_max_pool2d(output_size):
     height = base_h * random.randint(1, 5)
     width = base_w * random.randint(1, 5)
 
-    input_tensor = torch.randn((batch, channels, height, width), device=device, dtype=dtype)
+    input_tensor = torch.randn(
+        (batch, channels, height, width), device=device, dtype=dtype
+    )
 
     # Ntops implementation
-    ntops_output = ntops.torch.adaptive_max_pool2d(
-        input_tensor,
-        output_size
-    )
+    ntops_output = ntops.torch.adaptive_max_pool2d(input_tensor, output_size)
 
     # Reference implementation
     reference_output = torch.nn.functional.adaptive_max_pool2d(
-        input_tensor,
-        output_size
+        input_tensor, output_size
     )
 
     assert torch.allclose(ntops_output, reference_output, atol=1e-3, rtol=1e-3)

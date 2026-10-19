@@ -43,7 +43,9 @@ def test_lp_pool3d(norm_type, ceil_mode, use_tuple_kernel, use_stride):
     else:
         stride = None
 
-    input_tensor = torch.randn((batch, channels, depth, height, width), device=device, dtype=dtype)
+    input_tensor = torch.randn(
+        (batch, channels, depth, height, width), device=device, dtype=dtype
+    )
 
     ntops_output = ntops.torch.lp_pool3d(
         input_tensor,
@@ -60,4 +62,6 @@ def test_lp_pool3d(norm_type, ceil_mode, use_tuple_kernel, use_stride):
         ceil_mode=ceil_mode,
     )
 
-    assert torch.allclose(ntops_output, reference_output, atol=1e-3, rtol=1e-3, equal_nan=True)
+    assert torch.allclose(
+        ntops_output, reference_output, atol=1e-3, rtol=1e-3, equal_nan=True
+    )

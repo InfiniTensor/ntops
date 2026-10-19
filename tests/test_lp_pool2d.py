@@ -35,11 +35,18 @@ def test_lp_pool2d(norm_type, ceil_mode, use_tuple_kernel, use_stride):
             s_w = random.randint(1, max(1, kernel_size[1]))
             stride = (s_h, s_w)
         else:
-            stride = random.randint(1, max(1, kernel_size if isinstance(kernel_size, int) else min(kernel_size)))
+            stride = random.randint(
+                1,
+                max(
+                    1, kernel_size if isinstance(kernel_size, int) else min(kernel_size)
+                ),
+            )
     else:
         stride = None
 
-    input_tensor = torch.randn((batch, channels, height, width), device=device, dtype=dtype)
+    input_tensor = torch.randn(
+        (batch, channels, height, width), device=device, dtype=dtype
+    )
 
     ntops_output = ntops.torch.lp_pool2d(
         input_tensor,
@@ -56,4 +63,6 @@ def test_lp_pool2d(norm_type, ceil_mode, use_tuple_kernel, use_stride):
         ceil_mode=ceil_mode,
     )
 
-    assert torch.allclose(ntops_output, reference_output, atol=1e-3, rtol=1e-3, equal_nan=True)
+    assert torch.allclose(
+        ntops_output, reference_output, atol=1e-3, rtol=1e-3, equal_nan=True
+    )

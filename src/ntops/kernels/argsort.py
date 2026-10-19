@@ -5,13 +5,14 @@ from ninetoothed import Tensor
 
 from ntops.kernels.reduction import arrangement
 
+
 def application(input, values, indices, dim_size, descending):
     val_block = input[0]
 
     # 初始化结果 buffer
     res_vals = ntl.zeros(val_block.shape, dtype=val_block.dtype)
     res_idxs = ntl.zeros(val_block.shape, dtype=indices.dtype.dtype)
-    
+
     # 用于记录当前写入位置的索引
     output_range = ntl.arange(0, val_block.shape[0])
     # 原始数据的索引，用于比较
@@ -40,7 +41,7 @@ def application(input, values, indices, dim_size, descending):
 
         # 确定当前写入的位置 (target_mask 只有一个位置是 True)
         target_mask = output_range == i
-        
+
         # 将找到的最值和索引写入结果 Tensor
         res_vals = ntl.where(target_mask, real_val, res_vals)
         res_idxs = ntl.where(target_mask, current_max_idx, res_idxs)
@@ -65,10 +66,10 @@ def premake(
     pad_val = float("-inf") if descending else float("inf")
 
     tensors = (
-        Tensor(ndim, dtype=dtype, other=pad_val), # Input
-        Tensor(ndim, dtype=dtype),                # Output Values (辅助，虽然 argsort 主要要 indices)
-        Tensor(ndim, dtype=indices_dtype),        # Output Indices
-        Tensor(0, constexpr=True, value=dim_size),# Loop bound (k=dim_size)
+        Tensor(ndim, dtype=dtype, other=pad_val),  # Input
+        Tensor(ndim, dtype=dtype),  # Output Values (辅助，虽然 argsort 主要要 indices)
+        Tensor(ndim, dtype=indices_dtype),  # Output Indices
+        Tensor(0, constexpr=True, value=dim_size),  # Loop bound (k=dim_size)
         Tensor(0, constexpr=True, value=descending),
     )
 
