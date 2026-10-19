@@ -9,12 +9,13 @@ from ntops.kernels.reduction import arrangement
 
 def application(input, weight, eps, output, num_normalized_elements):
     _rms = ntl.zeros(input.dtype.shape, dtype=ntl.float32)
+    epsilon = ntl.cast(eps, ntl.float32)
 
     for i in range(input.shape[0]):
         input_i = ntl.cast(input[i], ntl.float32)
         _rms += input_i * input_i
 
-    rms = ntl.sqrt(ntl.sum(_rms) / num_normalized_elements + eps)
+    rms = ntl.sqrt(ntl.sum(_rms) / num_normalized_elements + epsilon)
 
     for i in range(input.shape[0]):
         output[i] = input[i] / rms * weight[i]
